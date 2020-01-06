@@ -8,7 +8,9 @@ class App extends React.Component{
     }
 
     render(){
-        return e('div', {className: "blink_me"}, "Welcome to Pgneditor GitHub IO.")
+        return e('div', p({})._,
+            e(EditableList, p({})._, null)
+        )
     }
 }
 
