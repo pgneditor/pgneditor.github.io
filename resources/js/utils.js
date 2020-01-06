@@ -10,6 +10,7 @@ class ComponentProps_{
     addstyle = function(name, value){
         if(!this.obj.style) this.obj.style = {}
         this.obj.style[name] = value
+        return this
     }
 
     w(x){this.addstyle("width", x + "px");return this}
@@ -26,6 +27,7 @@ class ComponentProps_{
     mar(x){this.addstyle("margin", x + "px");return this}
     pad(x){this.addstyle("padding", x + "px");return this}
     disp(x){this.addstyle("display", x);return this}
+    show(x){return this.disp(x ? "initial" : "none")}
     dib(){this.addstyle("display", "inline-block");return this}
     fd(x){this.addstyle("flexDirection", x);return this}
     ai(x){this.addstyle("alignItems", x);return this}    
@@ -37,6 +39,14 @@ class ComponentProps_{
     pos(x){this.addstyle("position", x);return this}
     por(){return this.pos("relative")}
     poa(){return this.pos("absolute")}
+    ovf(x){return this.addstyle("overflow", x)}
+    ovfsc(){return this.ovf("scroll")}
+    ovfx(x){return this.addstyle("overflowX", x)}
+    ovfxsc(){return this.ovfx("scroll")}
+    ovfy(x){return this.addstyle("overflowY", x)}
+    ovfysc(){return this.ovfy("scroll")}
+    cur(x){return this.addstyle("cursor", x)}
+    cup(){return this.cur("pointer")}
     get _(){return this.obj}
 }
 function p(objopt){return new ComponentProps_(objopt)}

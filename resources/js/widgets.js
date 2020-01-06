@@ -37,7 +37,7 @@ class TreeComponent extends React.Component{
 
     save(){
         if(this.isroot()){
-            localStorage.setItem(this.id, JSON.stringify(this.state))
+            localStorage.setItem(this.id, JSON.stringify(this.state))            
         }else{
             this.root().save()
         }
@@ -57,12 +57,66 @@ class EditableList extends TreeComponent{
         super(props)
 
         this.width = this.props.width || 200
-        this.height = this.props.height || 18
+        this.height = this.props.height || 20
+
+        if(!this.state.options){
+            this.state.options = []
+        }
+    }
+
+    getOptionByValue(value){
+        return this.state.options.find(o=>o[0]==value)
+    }
+
+    add(){
+        let value = window.prompt("Add option :")
+        if(value){
+            if(!this.getOptionByValue(value)){
+                this.state.options.push([value, value])
+            }
+            this.state.selected = value
+            this.state.rolled = false
+            this.build()
+        }
+    }
+
+    switchroll(){
+        this.state.rolled = !this.state.rolled
+        this.build()
+    }
+
+    select(value){
+        this.state.selected = value
+        this.switchroll()
+    }
+
+    delopt(value){
+        this.state.options = this.state.options.filter(o=>o[0]!=value)
+        this.state.selected = this.state.options.length ? this.state.options[0][0] : null
+        this.build()
+    }
+
+    build(){
+        this.parent.state[this.id] = this.state
+        this.save()
+        this.setState(this.state)
     }
 
     render(){        
-        return e('div', p({}).dfc()._,
-            e('div', p({}).w(this.width).h(this.height).pad(2).bc("#eee")._, null)
+        return e('div', p({className: "unselectable"}).por().dib().bc("#aa0")._,
+            e('div', p({}).dfc()._,
+                e('div', p({onClick: this.switchroll.bind(this)}).mar(2).ww(this.width).hh(this.height).pad(2).bc("#eee")._, this.state.selected ? this.state.selected : ""),
+                e('button', p({onClick: this.switchroll.bind(this)}).mar(1).fs(this.height - 6)._, ">"),
+                e('button', p({onClick: this.add.bind(this)}).mar(1).fs(this.height - 6)._, "+"),
+                e('div', p({}).cup().bc("#aaf").ww(this.width + 100).ovfysc().poa().show(this.state.rolled).t(this.height + 8)._,
+                    this.state.options.map(o=>
+                        e('div', p({key: "optionflex" + o[0]}).dfc()._,
+                            e('div', p({onClick: this.select.bind(this, o[0]),key: o[0]}).ww(this.width + 50).pad(1).bc(this.state.selected == o[0] ? "#7f7" : "#aff").mar(2)._, o[1]),
+                            e('button', p({onClick: this.delopt.bind(this, o[0])}).bc("#fcc")._, "X")
+                        )
+                    )
+                )
+            )
         )
     }
 }
