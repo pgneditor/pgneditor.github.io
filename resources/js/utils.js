@@ -13,7 +13,13 @@ class ComponentProps_{
     }
 
     w(x){this.addstyle("width", x + "px");return this}
+    miw(x){this.addstyle("minWidth", x + "px");return this}
+    maw(x){this.addstyle("maxWidth", x + "px");return this}
+    ww(x){return this.miw(x).maw(x)}
     h(x){this.addstyle("height", x + "px");return this}
+    mih(x){this.addstyle("minHeight", x + "px");return this}
+    mah(x){this.addstyle("maxHeight", x + "px");return this}
+    hh(x){return this.mih(x).mah(x)}
     t(x){this.addstyle("top", x + "px");return this}
     l(x){this.addstyle("left", x + "px");return this}
     bc(x){this.addstyle("backgroundColor", x);return this}
@@ -23,6 +29,7 @@ class ComponentProps_{
     dib(){this.addstyle("display", "inline-block");return this}
     fd(x){this.addstyle("flexDirection", x);return this}
     ai(x){this.addstyle("alignItems", x);return this}    
+    dfc(){return this.disp("flex").ai("center")}
     dfcc(){return this.disp("flex").fd("column").ai("center")}
     ff(x){this.addstyle("fontFamily", x);return this}
     fs(x){this.addstyle("fontSize", x + "px");return this}

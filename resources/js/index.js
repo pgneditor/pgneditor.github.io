@@ -1,20 +1,20 @@
-class App extends React.Component{
+class App extends TreeComponent{
     constructor(props){
         super(props)
+    }
 
-        this.props = props
-
-        this.state = {}
+    componentDidMount(){
+        this.save()
     }
 
     render(){
         return e('div', p({})._,
-            e(EditableList, p({})._, null)
+            this.e(EditableList, p({id: "templates"})._, null)
         )
     }
 }
 
 ReactDOM.render(
-    e(App, {}, null),
+    e(App, {id: "app"}, null),
     document.getElementById('root')
 )
