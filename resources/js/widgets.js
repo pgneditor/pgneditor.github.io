@@ -1,4 +1,9 @@
 const IGNORE_OBJ = true
+const PROTECTED_VALUES = [
+    "options",
+    "rolled",
+    "selected"
+]
 
 class TreeComponent extends React.Component{
     constructor(props){
@@ -84,10 +89,14 @@ class EditableList extends TreeComponent{
 
     add(ev){
         if(ev) ev.stopPropagation()
-        let kind = window.prompt("Type [ 's' : string ( default ) , 'e' : editable list ] :")
+        let kind = window.prompt("Type [ 's' : string ( default ) , 'e' : editable list, 'c' : clone ] :")
         if(!kind) kind = "s"
         let value = window.prompt("Option value :")
         if(!value) return
+        if(PROTECTED_VALUES.includes(value)){
+            window.alert(`Value "${value}" is among protected values : ${PROTECTED_VALUES.map(v=>'"' + v + '"').join(" , ")}.`)
+            return
+        }
         let display = window.prompt("Option display :")        
         if(!display) display = value
 
@@ -111,6 +120,25 @@ class EditableList extends TreeComponent{
                         id: value,
                         idLabel: display
                     }])
+                }
+                break
+            case 'c':
+                if(!this.state.selected){
+                    window.alert("Nothing to clone.")
+                    return
+                }
+                if(opt){
+                    window.alert("Value already in use.")
+                    return
+                }
+                opt = this.getOptionByValue(this.state.selected)
+                this.state.options.push([value, {
+                    kind: opt[1].kind,
+                    id: value,
+                    idLabel: display
+                }])
+                if(this.parent){
+                    this.state[value] = cloneObject(this.state[this.state.selected])
                 }
                 break
             default:
