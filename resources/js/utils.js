@@ -14,6 +14,24 @@ function cloneObject(obj){
     return JSON.parse(JSON.stringify(obj))
 }
 
+function simpleFetch(url, params, callback){
+    fetch(url, params).then(
+        (response)=>response.text().then(
+            (text)=>{                
+                callback({ok: true, content: text})
+            },
+            (err)=>{
+                console.log("get response text error", err)
+                callback({ok: false, status: "Error: failed to get response text."})
+            }
+        ),
+        (err)=>{
+            console.log("fetch error", err)
+            callback({ok: false, status: "Error: failed to fetch."})
+        }
+    )
+}
+
 /////////////////////////////////////////////////////
 // widget utils
 const e = React.createElement
