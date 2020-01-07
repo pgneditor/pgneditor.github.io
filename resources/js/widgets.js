@@ -84,51 +84,44 @@ class EditableList extends TreeComponent{
 
     add(ev){
         if(ev) ev.stopPropagation()
-        let value = window.prompt("Add option :")
-        if(value){
-            let display = value
-            let valueparts = value.split(":")
-            let isClone = false
-            if(valueparts.length > 1){
-                value = valueparts[0]
-                display = valueparts.slice(1).join(":")                     
-                if(display.match(/^\*/)){
-                    isClone = true
-                    display = display.substring(1)
-                    let curropt = this.getOptionByValue(this.state.selected)
-                    if(curropt){
-                        let currdisplay = curropt[1]
-                        let currdisplayobj = JSON.parse(currdisplay)
-                        currdisplayobj.idLabel = display
-                        currdisplayobj.id = value
-                        display = JSON.stringify(currdisplayobj)                        
-                        this.state[value] = cloneObject(this.state[this.state.selected])
-                    }else{
-                        window.alert("Nothing to clone.")
-                        return
-                    }
-                }
-            }            
-            let opt = this.getOptionByValue(value)
-            if(isClone){
+        let kind = window.prompt("Type [ 's' : string ( default ) , 'e' : editable list ] :")
+        if(!kind) kind = "s"
+        let value = window.prompt("Option value :")
+        if(!value) return
+        let display = window.prompt("Option display :")        
+        if(!display) display = value
+
+        let opt = this.getOptionByValue(value)
+
+        switch(kind){
+            case "s":
                 if(opt){
-                    window.alert(`Id "${value}" already in use. Choose a different id.`)
+                    [ opt[0], opt[1] ] = [ value, display ]
+                }else{
+                    this.state.options.push([value, display])
+                }
+                break
+            case 'e':
+                if(opt){
+                    window.alert(`Value "${value}" already in use.`)
                     return
                 }else{
-                    this.state.options.push([value, display])
+                    this.state.options.push([value, {
+                        kind: kind,
+                        id: value,
+                        idLabel: display
+                    }])
                 }
-            }else{
-                if(opt){
-                    [ opt[0], opt[1] ] = [ value, display ]                
-                }else{
-                    this.state.options.push([value, display])
-                }            
-            }            
-            this.checkParentSelect()
-            this.state.selected = value
-            this.state.rolled = true            
-            this.build()
+                break
+            default:
+                window.alert("Illegal type.")
+                return
         }
+
+        this.checkParentSelect()
+        this.state.selected = value
+        this.state.rolled = true            
+        this.build()
     }
 
     checkParentSelect(){
@@ -196,18 +189,17 @@ class EditableList extends TreeComponent{
         this.selref.current.scrollIntoView({block: "center"})
     }
 
-    elementForDisplay(display, ignoreObj){                
-        try{            
-            let dobj = JSON.parse(display)                        
-            if(ignoreObj) return this.idLabel                        
-            let isThisSelected = this.state.selected == dobj.id            
-            return e('div', p({}).dfc()._,
-                e('div', p({}).ww(100)._, dobj.idLabel),
-                this.e(EditableList, p({key: UID(), id: dobj.id, dontRoll: !isThisSelected,  width: this.width - 200})._, null),
-            )
-        }catch(err){
-            return display
-        }
+    elementForDisplay(display, ignoreObj){                       
+        if((typeof display) == "string") return display
+
+        if(ignoreObj) return this.idLabel                        
+
+        let isThisSelected = this.state.selected == display.id            
+
+        return e('div', p({}).dfc()._,
+            e('div', p({}).ww(100)._, display.idLabel),
+            this.e(EditableList, p({key: UID(), id: display.id, dontRoll: !isThisSelected,  width: this.width - 200})._, null),
+        )
     }
 
     render(){                        

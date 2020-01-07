@@ -1,5 +1,190 @@
 {
-    "templates": {
-       "options": []
-    }
- }
+   "templates": {
+      "options": [
+         [
+            "default",
+            {
+               "kind": "e",
+               "id": "default",
+               "idLabel": "default"
+            }
+         ]
+      ],
+      "selected": "default",
+      "rolled": true,
+      "default": {
+         "options": [
+            [
+               "clockTime",
+               {
+                  "kind": "e",
+                  "id": "clockTime",
+                  "idLabel": "Initial time"
+               }
+            ],
+            [
+               "clockIncrement",
+               {
+                  "kind": "e",
+                  "id": "clockIncrement",
+                  "idLabel": "Clock increment"
+               }
+            ]
+         ],
+         "selected": "clockTime",
+         "rolled": true,
+         "clockTime": {
+            "options": [
+               [
+                  "0.25",
+                  "1/4 minute"
+               ],
+               [
+                  "0.5",
+                  "1/2 minute"
+               ],
+               [
+                  "0.75",
+                  "3/4 minute"
+               ],
+               [
+                  "1.0",
+                  "1 minute"
+               ],
+               [
+                  "1.5",
+                  "1.5 minutes"
+               ],
+               [
+                  "2.0",
+                  "2 minutes"
+               ],
+               [
+                  "3.0",
+                  "3 minutes"
+               ],
+               [
+                  "4.0",
+                  "4 minutes"
+               ],
+               [
+                  "5.0",
+                  "5 minutes"
+               ],
+               [
+                  "6.0",
+                  "6 minutes"
+               ],
+               [
+                  "7.0",
+                  "7 minutes"
+               ],
+               [
+                  "10.0",
+                  "10 minutes"
+               ],
+               [
+                  "15.0",
+                  "15 minutes"
+               ],
+               [
+                  "20.0",
+                  "20 minutes"
+               ],
+               [
+                  "25.0",
+                  "25 minutes"
+               ],
+               [
+                  "30.0",
+                  "30 minutes"
+               ],
+               [
+                  "40.0",
+                  "40 minutes"
+               ],
+               [
+                  "50.0",
+                  "50 minutes"
+               ],
+               [
+                  "60.0",
+                  "60 minutes"
+               ]
+            ],
+            "selected": "3.0",
+            "rolled": false
+         },
+         "clockIncrement": {
+            "options": [
+               [
+                  "0",
+                  "0 second"
+               ],
+               [
+                  "1",
+                  "1 second"
+               ],
+               [
+                  "2",
+                  "2 seconds"
+               ],
+               [
+                  "3",
+                  "3 seconds"
+               ],
+               [
+                  "4",
+                  "4 seconds"
+               ],
+               [
+                  "5",
+                  "5 seconds"
+               ],
+               [
+                  "6",
+                  "6 seconds"
+               ],
+               [
+                  "7",
+                  "7 seconds"
+               ],
+               [
+                  "10",
+                  "10 seconds"
+               ],
+               [
+                  "15",
+                  "15 seconds"
+               ],
+               [
+                  "20",
+                  "20 seconds"
+               ],
+               [
+                  "25",
+                  "25 seconds"
+               ],
+               [
+                  "30",
+                  "30 seconds"
+               ],
+               [
+                  "40",
+                  "40 seconds"
+               ],
+               [
+                  "50",
+                  "50 seconds"
+               ],
+               [
+                  "60",
+                  "60 seconds"
+               ]
+            ],
+            "selected": "2",
+            "rolled": false
+         }
+      }
+   }
+}
