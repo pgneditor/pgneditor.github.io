@@ -11,7 +11,7 @@
          ]
       ],
       "selected": "default",
-      "rolled": true,
+      "rolled": false,
       "default": {
          "options": [
             [
@@ -63,8 +63,8 @@
                }
             ]
          ],
-         "selected": "minutes",
-         "rolled": true,
+         "selected": "name",
+         "rolled": false,
          "clockTime": {
             "options": [
                [
