@@ -1,3 +1,5 @@
+const IGNORE_OBJ = true
+
 class TreeComponent extends React.Component{
     constructor(props){
         super(props)
@@ -7,6 +9,8 @@ class TreeComponent extends React.Component{
         this.parent = props.parent
 
         this.id = props.id
+
+        this.idLabel = props.idLabel || this.id
 
         this.state = {}
 
@@ -36,14 +40,15 @@ class TreeComponent extends React.Component{
     }
 
     save(){
-        if(this.isroot()){
+        if(this.isroot()){            
             localStorage.setItem(this.id, JSON.stringify(this.state))            
         }else{
+            this.parent.state[this.id] = this.state
             this.root().save()
         }
     }
 
-    e(kind, props, childs){
+    e(kind, props, childs){        
         return e(kind, {...{parent: this}, ...props}, childs)
     }
 
@@ -60,9 +65,16 @@ class EditableList extends TreeComponent{
         this.height = this.props.height || 20
 
         this.dhc = this.props.dragHandleColor || "#00f"
+        
+        this.dontRollOnSelect = this.props.dontRollOnSelect        
 
         if(!this.state.options){
             this.state.options = []
+        }
+
+        if(this.props.dontRoll){            
+            this.state.rolled = false
+            this.save()
         }
     }
 
@@ -70,26 +82,50 @@ class EditableList extends TreeComponent{
         return this.state.options.find(o=>o[0]==value)
     }
 
-    add(){
+    add(ev){
+        if(ev) ev.stopPropagation()
         let value = window.prompt("Add option :")
         if(value){
-            if(!this.getOptionByValue(value)){
-                this.state.options.push([value, value])
-            }
+            let display = value
+            let valueparts = value.split(":")
+            if(valueparts.length > 1){
+                value = valueparts[0]
+                display = valueparts.slice(1).join(":")
+            }            
+            let opt = this.getOptionByValue(value)
+            if(opt){
+                [ opt[0], opt[1] ] = [ value, display ]                
+            }else{
+                this.state.options.push([value, display])
+            }            
+            this.checkParentSelect()
             this.state.selected = value
-            this.state.rolled = false
+            this.state.rolled = true            
             this.build()
         }
     }
 
-    switchroll(){
+    checkParentSelect(){
+        if(this.parent){
+            if(this.parent.select){
+                this.parent.state.selected = this.id
+                this.parent.build()
+            }
+        }        
+    }
+
+    switchroll(ev){        
+        if(ev) ev.stopPropagation()
+        this.checkParentSelect()
         this.state.rolled = !this.state.rolled
         this.build()
     }
 
-    select(value){
+    select(value, ev){        
+        if(ev) ev.stopPropagation()
         this.state.selected = value
-        this.switchroll()
+        if(!this.dontRollOnSelect) this.switchroll()
+        else this.build()
     }
 
     delopt(value){
@@ -98,8 +134,7 @@ class EditableList extends TreeComponent{
         this.build()
     }
 
-    build(){
-        this.parent.state[this.id] = this.state
+    build(){        
         this.save()
         this.setState(this.state)
     }
@@ -135,19 +170,33 @@ class EditableList extends TreeComponent{
         this.selref.current.scrollIntoView({block: "center"})
     }
 
-    render(){        
+    elementForDisplay(display, ignoreObj){                
+        try{            
+            let dobj = JSON.parse(display)                        
+            if(ignoreObj) return this.idLabel                        
+            let isThisSelected = this.state.selected == dobj.id            
+            return e('div', p({}).dfc()._,
+                e('div', p({}).ww(100)._, dobj.idLabel),
+                this.e(EditableList, p({key: UID(), id: dobj.id, dontRoll: !isThisSelected,  width: this.width - 200})._, null),
+            )
+        }catch(err){
+            return display
+        }
+    }
+
+    render(){                        
         this.selref = React.createRef()
 
         return e('div', p({className: "unselectable"}).ff("monospace").por().dib().bc(this.state.rolled ? "#77f" : "#bbb")._,
             e('div', p({}).dfc()._,
-                e('div', p({onClick: this.switchroll.bind(this)}).fs(this.height - 3).mar(2).ww(this.width).hh(this.height).pad(2).padl(4).bc("#eee")._, this.state.selected ? this.state.selected : ""),
+                e('div', p({onClick: this.switchroll.bind(this)}).fs(this.height - 3).mar(2).ww(this.width).hh(this.height).pad(2).padl(4).bc("#eee")._, this.state.selected ? this.elementForDisplay(this.getOptionByValue(this.state.selected)[1], IGNORE_OBJ) : this.idLabel),
                 e('button', p({onClick: this.switchroll.bind(this)}).mar(1).fs(this.height - 6)._, ">"),
                 e('button', p({onClick: this.add.bind(this)}).mar(1).fs(this.height - 6)._, "+"),
-                e('div', p({}).cup().bc("#aaf").mah(290).ww(this.width + 60).marl(1).ovfysc().poa().show(this.state.rolled).t(this.height + 8)._,
+                e('div', p({}).zi(10).cup().bc("#aaf").bdr("dotted", 5, "#77f").mih(200).mah(400).ww(this.width + 50).marl(1).ovfysc().poa().show(this.state.rolled).t(this.height + 8)._,
                     this.state.options.map(o=>
                         e('div', p({ref: this.state.selected == o[0] ? this.selref : null, key: "optionflex" + o[0]}).dfc()._,
                             e('div', p({}).ww(this.height - 4).hh(this.height - 4).bc(this.dhc).mar(2).marl(5).drag(this.optionDrag.bind(this, o[0]))._, null),
-                            e('div', p({onClick: this.select.bind(this, o[0]),key: o[0]}).ww(this.width - 14).pad(1).bc(this.state.selected == o[0] ? "#7f7" : "#aff").mar(2)._, o[1]),
+                            e('div', p({onClick: this.select.bind(this, o[0]),key: o[0]}).ww(this.width - 24).pad(1).bc(this.state.selected == o[0] ? "#7f7" : "#aff").mar(2)._, this.elementForDisplay(o[1])),
                             e('button', p({onClick: this.delopt.bind(this, o[0])}).fs(this.height - 9).marl(2).bc("#fcc")._, "X")
                         )
                     )

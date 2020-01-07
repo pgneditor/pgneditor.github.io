@@ -9,7 +9,7 @@ class App extends TreeComponent{
 
     render(){
         return e('div', p({})._,
-            this.e(EditableList, p({id: "templates"})._, null)
+            this.e(EditableList, p({id: "templates", width: 800, dontRollOnSelect: true})._, null)
         )
     }
 }

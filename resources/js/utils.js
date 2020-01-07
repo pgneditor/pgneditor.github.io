@@ -6,6 +6,10 @@ Array.prototype.itoj = function(i, j){
     }
 }
 
+function UID(){
+    return "uid_" + Math.random().toString(36).substring(2,12)
+}
+
 /////////////////////////////////////////////////////
 // widget utils
 const e = React.createElement
@@ -21,6 +25,11 @@ class ComponentProps_{
         return this
     }
 
+    bdrst(x){return this.addstyle("borderStyle", x)}
+    bdrw(x){return this.addstyle("borderWidth", x + "px")}
+    bdrc(x){return this.addstyle("borderColor", x)}
+    bdr(x,y,z){return this.bdrst(x).bdrw(y).bdrc(z)}
+    zi(x){return this.addstyle("zIndex", x)}
     w(x){return this.addstyle("width", x + "px")}
     miw(x){return this.addstyle("minWidth", x + "px")}
     maw(x){return this.addstyle("maxWidth", x + "px")}
