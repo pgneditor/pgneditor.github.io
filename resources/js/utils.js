@@ -10,6 +10,10 @@ function UID(){
     return "uid_" + Math.random().toString(36).substring(2,12)
 }
 
+function cloneObject(obj){
+    return JSON.parse(JSON.stringify(obj))
+}
+
 /////////////////////////////////////////////////////
 // widget utils
 const e = React.createElement

@@ -88,12 +88,30 @@ class EditableList extends TreeComponent{
         if(value){
             let display = value
             let valueparts = value.split(":")
+            let isClone = false
             if(valueparts.length > 1){
                 value = valueparts[0]
-                display = valueparts.slice(1).join(":")
+                display = valueparts.slice(1).join(":")                     
+                if(display.match(/^\*/)){
+                    isClone = true
+                    display = display.substring(1)
+                    let curropt = this.getOptionByValue(this.state.selected)
+                    if(curropt){
+                        let currdisplay = curropt[1]
+                        let currdisplayobj = JSON.parse(currdisplay)
+                        currdisplayobj.idLabel = display
+                        currdisplayobj.id = value
+                        display = JSON.stringify(currdisplayobj)
+                        console.log(display)
+                        this.state[value] = cloneObject(this.state[this.state.selected])
+                    }else{
+                        window.alert("Nothing to clone.")
+                        return
+                    }
+                }
             }            
             let opt = this.getOptionByValue(value)
-            if(opt){
+            if(opt && (!isClone)){
                 [ opt[0], opt[1] ] = [ value, display ]                
             }else{
                 this.state.options.push([value, display])
