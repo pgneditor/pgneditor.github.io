@@ -131,6 +131,7 @@ class EditableList extends TreeComponent{
     }
 
     componentDidUpdate(){
+        if(!this.selref.current) return
         this.selref.current.scrollIntoView({block: "center"})
     }
 
