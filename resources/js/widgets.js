@@ -101,8 +101,7 @@ class EditableList extends TreeComponent{
                         let currdisplayobj = JSON.parse(currdisplay)
                         currdisplayobj.idLabel = display
                         currdisplayobj.id = value
-                        display = JSON.stringify(currdisplayobj)
-                        console.log(display)
+                        display = JSON.stringify(currdisplayobj)                        
                         this.state[value] = cloneObject(this.state[this.state.selected])
                     }else{
                         window.alert("Nothing to clone.")
@@ -111,10 +110,19 @@ class EditableList extends TreeComponent{
                 }
             }            
             let opt = this.getOptionByValue(value)
-            if(opt && (!isClone)){
-                [ opt[0], opt[1] ] = [ value, display ]                
+            if(isClone){
+                if(opt){
+                    window.alert(`Id "${value}" already in use. Choose a different id.`)
+                    return
+                }else{
+                    this.state.options.push([value, display])
+                }
             }else{
-                this.state.options.push([value, display])
+                if(opt){
+                    [ opt[0], opt[1] ] = [ value, display ]                
+                }else{
+                    this.state.options.push([value, display])
+                }            
             }            
             this.checkParentSelect()
             this.state.selected = value
