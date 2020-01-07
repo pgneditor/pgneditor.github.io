@@ -225,7 +225,7 @@ class EditableList extends TreeComponent{
         let isThisSelected = this.state.selected == display.id            
 
         return e('div', p({}).dfc()._,
-            e('div', p({}).ww(100)._, display.idLabel),
+            e('div', p({}).padl(2).ww(110)._, display.idLabel),
             this.e(EditableList, p({key: UID(), id: display.id, dontRoll: !isThisSelected,  width: this.width - 200})._, null),
         )
     }
@@ -234,11 +234,13 @@ class EditableList extends TreeComponent{
         this.selref = React.createRef()
 
         return e('div', p({className: "unselectable"}).ff("monospace").por().dib().bc(this.state.rolled ? "#77f" : "#bbb")._,
-            e('div', p({}).dfc()._,
-                e('div', p({onClick: this.switchroll.bind(this)}).fs(this.height - 3).mar(2).ww(this.width).hh(this.height).pad(2).padl(4).bc("#eee")._, this.state.selected ? this.elementForDisplay(this.getOptionByValue(this.state.selected)[1], IGNORE_OBJ) : this.idLabel),
-                e('button', p({onClick: this.switchroll.bind(this)}).mar(1).fs(this.height - 6)._, ">"),
-                e('button', p({onClick: this.add.bind(this)}).mar(1).fs(this.height - 6)._, "+"),
-                e('div', p({}).zi(10).cup().bc("#aaf").bdr("dotted", 5, "#77f").mih(200).mah(400).ww(this.width + 50).marl(1).ovfysc().poa().show(this.state.rolled).t(this.height + 8)._,
+            e('div', p({}).dfcc()._,
+                e('div', p({}).dfc()._,
+                    e('div', p({onClick: this.switchroll.bind(this)}).fs(this.height - 3).mar(2).ww(this.width).hh(this.height).pad(2).padl(4).bc("#eee")._, this.state.selected ? this.elementForDisplay(this.getOptionByValue(this.state.selected)[1], IGNORE_OBJ) : this.idLabel),
+                    e('button', p({onClick: this.switchroll.bind(this)}).mar(1).fs(this.height - 6)._, ">"),
+                    e('button', p({onClick: this.add.bind(this)}).mar(1).fs(this.height - 6)._, "+"),                
+                ),
+                e('div', p({}).zi(10).cup().bc("#aaf").bdr("dotted", 3, "#77f").mah(400).ww(this.width + 50).marl(1).ovfysc().por().show(this.state.rolled)._,
                     this.state.options.map(o=>
                         e('div', p({ref: this.state.selected == o[0] ? this.selref : null, key: "optionflex" + o[0]}).dfc()._,
                             e('div', p({}).ww(this.height - 4).hh(this.height - 4).bc(this.dhc).mar(2).marl(5).drag(this.optionDrag.bind(this, o[0]))._, null),
