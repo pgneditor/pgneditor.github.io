@@ -132,6 +132,10 @@ class EditableList extends TreeComponent{
                     return
                 }
                 opt = this.getOptionByValue(this.state.selected)
+                if(typeof opt[1] == "string"){
+                    window.alert("Cannot clone string.")
+                    return
+                }
                 this.state.options.push([value, {
                     kind: opt[1].kind,
                     id: value,
