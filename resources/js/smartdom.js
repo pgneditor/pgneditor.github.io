@@ -204,7 +204,7 @@ class EditableList_ extends SmartDomElement{
 
     buildOptions(){
         if(!this.state.options) this.state.options = []
-        if(!this.state.selected && this.state.options.length) this.selected = this.options[0]
+        if(!this.state.selected && this.state.options.length) this.state.selected = this.state.options[0]
         this.optionsDiv.x().a(this.state.options.map(option=>
             div().cp().ae("click", this.optionClicked.bind(this, option)).html(option.display).bc(option.value == this.state.selected.value ? "#0f0" : "#eee")
         ))
@@ -232,12 +232,14 @@ class EditableList_ extends SmartDomElement{
         let opt = this.findOptionByValue(value)
         if(opt){
             opt.display = display
-            this.state.selected = value
+            this.state.selected = opt
             this.buildOptions()
             this.storeState()
             return
         }
-        this.state.options.push({value: value, display: display})
+        opt = {value: value, display: display}
+        this.state.options.push(opt)
+        this.state.selected = opt
         this.buildOptions()
         this.storeState()
     }
