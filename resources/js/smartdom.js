@@ -1,3 +1,13 @@
+class SmartDomEvent{
+    constructor(ev, e){
+        this.ev = ev
+        this.e = e        
+        this.kind = ev.type        
+    }
+
+    get do(){return this.e.props.do}
+}
+
 class SmartDomElement{
     constructor(tagName, propsOpt){
         this.e = document.createElement(tagName)
@@ -7,6 +17,50 @@ class SmartDomElement{
 
         this.childs = []
         this.parent = null
+
+        if(this.props.ev){
+            for(let kind of this.props.ev.split(" ")){
+                this.e.addEventListener(kind, this.handleEventAgent.bind(this))
+            }
+        }
+    }
+
+    idParent(){
+        let current = this
+        do{
+            current = current.parent            
+            if(current) if(current.id) return current
+        }while(current)
+        return null
+    }
+
+    idParentChain(){
+        let chain = []
+        let current = this
+        while(current){                             
+            chain.unshift(current)
+            current = current.idParent()
+        }
+        return chain
+    }
+
+    pathList(){
+        return this.idParentChain().map(ip=>ip.id ? ip.id : "*")
+    }
+
+    path(){
+        return this.pathList().join("/")
+    }
+
+    handleEvent(sev){
+        // should be implemented in subclasses
+    }
+
+    handleEventAgent(ev){                
+        let sev = new SmartDomEvent(ev, this)
+        for(let ip of this.idParentChain()){                        
+            ip.handleEvent(sev)
+        }
     }
 
     addStyle(name, value){
@@ -32,7 +86,7 @@ class SmartDomElement{
             child.parent = this
             this.childs.push(child)
             this.e.appendChild(child.e)
-        }
+        }        
         return this
     }
 }
@@ -43,3 +97,10 @@ class div_ extends SmartDomElement{
     }
 }
 function div(props){return new div_(props)}
+
+class button_ extends SmartDomElement{
+    constructor(propsOpt){
+        super("button", propsOpt)
+    }
+}
+function button(props){return new button_(props)}
