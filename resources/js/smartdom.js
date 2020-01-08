@@ -139,6 +139,7 @@ class SmartDomElement{
     bdrw(x){return this.addStyle("borderWidth", x)}
     bdrc(x){return this.addStyle("borderColor", x)}
     bdr(x,y,z){return this.bdrs(x).bdrw(y).bdrc(z)}
+    drg(x){return this.sa("draggable", x)}
 
     html(x){this.e.innerHTML = x; return this}
 
@@ -196,9 +197,9 @@ class EditableList_ extends SmartDomElement{
         this.selectedPadding = 2
         
         this.ffm().ac("unselectable").dib().a(this.container = div().por().dfc().pad(this.containerPadding).a(
-            this.selectedDiv = div().fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
-            Button(">", this.switchRoll.bind(this)),
-            Button("+", this.addOption.bind(this)),
+            this.selectedDiv = div().ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
+            Button(">", this.switchRoll.bind(this)).marl(2),
+            Button("+", this.addOption.bind(this)).marl(2),
             this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(50).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
         ))
 
@@ -210,8 +211,9 @@ class EditableList_ extends SmartDomElement{
 
     optionClicked(option){
         this.state.selected = option
+        this.state.rolled = true        
         this.buildOptions()
-        this.storeState()
+        this.switchRoll()
     }
 
     delOption(option){
@@ -222,12 +224,40 @@ class EditableList_ extends SmartDomElement{
         this.storeState()
     }
 
+    handleEvent(sev){
+        if(sev.do == "dragoption"){
+            switch(sev.kind){
+                case "dragstart":
+                    this.draggedOption = sev.e.props.option
+                    sev.e.bc("#ff0")
+                    break
+                case "dragover":
+                    sev.ev.preventDefault()
+                    sev.e.bc("#0f0")
+                    break
+                case "dragleave":
+                    sev.ev.preventDefault()
+                    sev.e.bc("#00f")
+                    break
+                case "drop":
+                    let dropOption = sev.e.props.option
+                    let i = this.state.options.findIndex(opt=>opt.value == this.draggedOption.value)
+                    let j = this.state.options.findIndex(opt=>opt.value == dropOption.value)
+                    this.state.options.itoj(i,j)
+                    this.buildOptions()
+                    this.storeState()
+                    break
+            }
+        }
+    }
+
     buildOptions(){
         if(!this.state.options) this.state.options = []
         if(!this.state.selected && this.state.options.length) this.state.selected = this.state.options[0]
         this.optionsDiv.x().a(this.state.options.map(option=>
             div().dfc().a(
-                div().mar(2).pad(2).fs(this.height - 4).cp().ae("click", this.optionClicked.bind(this, option)).html(option.display).bc(option.value == this.state.selected.value ? "#0f0" : "#eee"),
+                div({ev: "dragstart dragenter dragover dragleave drop", do: "dragoption", option: option}).cm().drg(true).mar(2).ww(this.height * 0.7).hh(this.height * 0.7).bc("#00f"),
+                div().ww(this.width - 30).mar(2).pad(2).fs(this.height - 4).cp().ae("click", this.optionClicked.bind(this, option)).html(option.display).bc(option.value == this.state.selected.value ? "#0f0" : "#eee"),
                 Button("X", this.delOption.bind(this, option)).fs(this.height / 2).marl(2).bc("#faa")
             )
         ))
