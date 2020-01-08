@@ -204,6 +204,7 @@ class EditableList_ extends SmartDomElement{
 
     buildOptions(){
         if(!this.state.options) this.state.options = []
+        if(!this.state.selected && this.state.options.length) this.selected = this.options[0]
         this.optionsDiv.x().a(this.state.options.map(option=>
             div().cp().ae("click", this.optionClicked.bind(this, option)).html(option.display).bc(option.value == this.state.selected.value ? "#0f0" : "#eee")
         ))
