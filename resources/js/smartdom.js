@@ -107,6 +107,8 @@ class SmartDomElement{
     l(x){return this.addStyle("left", `${x}px`)}
     bc(x){return this.addStyle("backgroundColor", x)}
     mar(x){return this.addStyle("margin", `${x}px`)}
+    marl(x){return this.addStyle("marginLeft", `${x}px`)}
+    marr(x){return this.addStyle("marginRight", `${x}px`)}
     pad(x){return this.addStyle("padding", `${x}px`)}
     disp(x){return this.addStyle("display", x)}    
     df(x){return this.disp("flex")}    
@@ -128,7 +130,15 @@ class SmartDomElement{
     cp(){return this.cur("pointer")}
     cm(){return this.cur("move")}
     sa(key, value){this.e.setAttribute(key, value); return this}
-    ac(x){this.sa("class", x); return this}
+    ac(x){return this.sa("class", x)}
+    zi(x){return this.addStyle("zIndex", x)}
+    fs(x){return this.addStyle("fontSize", `${x}px`)}
+    ff(x){return this.addStyle("fontFamily", x)}
+    ffm(){return this.ff("monospace")}
+    bdrs(x){return this.addStyle("borderStyle", x)}
+    bdrw(x){return this.addStyle("borderWidth", x)}
+    bdrc(x){return this.addStyle("borderColor", x)}
+    bdr(x,y,z){return this.bdrs(x).bdrw(y).bdrc(z)}
 
     html(x){this.e.innerHTML = x; return this}
 
@@ -180,14 +190,16 @@ class EditableList_ extends SmartDomElement{
         this.width = this.props.width || 200
         this.height = this.props.height || 20        
 
+        this.extrawidth = 45
+
         this.containerPadding = 2
         this.selectedPadding = 2
         
-        this.ac("unselectable").dib().a(this.container = div().por().dfc().pad(this.containerPadding).a(
-            this.selectedDiv = div().pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
+        this.ffm().ac("unselectable").dib().a(this.container = div().por().dfc().pad(this.containerPadding).a(
+            this.selectedDiv = div().fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
             Button(">", this.switchRoll.bind(this)),
             Button("+", this.addOption.bind(this)),
-            this.optionsDiv = div().mih(50).ww(this.width).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
+            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(50).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
         ))
 
         this.buildOptions()
@@ -202,15 +214,26 @@ class EditableList_ extends SmartDomElement{
         this.storeState()
     }
 
+    delOption(option){
+        this.state.options = this.state.options.filter(opt=>opt.value != option.value)
+        if(this.state.options.length) this.state.selected = this.state.options[0]
+        else this.state.selected = null
+        this.buildOptions()
+        this.storeState()
+    }
+
     buildOptions(){
         if(!this.state.options) this.state.options = []
         if(!this.state.selected && this.state.options.length) this.state.selected = this.state.options[0]
         this.optionsDiv.x().a(this.state.options.map(option=>
-            div().cp().ae("click", this.optionClicked.bind(this, option)).html(option.display).bc(option.value == this.state.selected.value ? "#0f0" : "#eee")
+            div().dfc().a(
+                div().mar(2).pad(2).fs(this.height - 4).cp().ae("click", this.optionClicked.bind(this, option)).html(option.display).bc(option.value == this.state.selected.value ? "#0f0" : "#eee"),
+                Button("X", this.delOption.bind(this, option)).fs(this.height / 2).marl(2).bc("#faa")
+            )
         ))
         if(this.state.selected){
             this.selectedDiv.html(this.state.selected.display)
-        }
+        }else this.selectedDiv.x()
     }
 
     switchRoll(){        
