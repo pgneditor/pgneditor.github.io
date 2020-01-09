@@ -117,6 +117,7 @@ class SmartDomElement{
     hh(x){return this.mih(x).mah(x)}
     t(x){return this.addStyle("top", `${x}px`)}
     l(x){return this.addStyle("left", `${x}px`)}
+    c(x){return this.addStyle("color", x)}
     bc(x){return this.addStyle("backgroundColor", x)}
     mar(x){return this.addStyle("margin", `${x}px`)}
     marl(x){return this.addStyle("marginLeft", `${x}px`)}
@@ -375,6 +376,29 @@ class ColorInput_ extends input_{
 }
 function ColorInput(props){return new ColorInput_(props)}
 
+class CheckBoxInput_ extends input_{
+    constructor(props){
+        super({...{type: "checkbox"}, ...props})
+    }
+
+    init(){                
+        this.ae("change", this.checkedChanged.bind(this))        
+        this.setFromState()
+    }
+
+    checkedChanged(){                
+        this.state.checked = this.e.checked
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.checked = this.state.checked || false
+        this.e.checked = this.state.checked
+        this.storeState()
+    }
+}
+function CheckBoxInput(props){return new CheckBoxInput_(props)}
+
 class ComboOption_ extends SmartDomElement{
     constructor(props){
         super("option", props)
@@ -433,6 +457,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "time", display: "Time"},
                     {value: "datetime", display: "Date Time"},
                     {value: "color", display: "Color"},
+                    {value: "checkbox", display: "Checkbox"},
                 ]
             :
                 [{value: "scalar", display: "Scalar"}]            
@@ -508,6 +533,11 @@ class OptionElement_ extends SmartDomElement{
                 return this.labeledOptionElement(
                     option,
                     ColorInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                )
+            case "checkbox":                            
+                return this.labeledOptionElement(
+                    option,
+                    CheckBoxInput({idParent: this.idParent(), id: option.value}).hh(this.idParent().height).ww(this.idParent().height)
                 )
             default:
                 return div().cp().html(option.display).ae("click", this.optionHandler(option))
