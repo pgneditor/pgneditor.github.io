@@ -109,7 +109,9 @@ class SmartDomElement{
     bc(x){return this.addStyle("backgroundColor", x)}
     mar(x){return this.addStyle("margin", `${x}px`)}
     marl(x){return this.addStyle("marginLeft", `${x}px`)}
-    marr(x){return this.addStyle("marginRight", `${x}px`)}
+    mart(x){return this.addStyle("marginTop", `${x}px`)}
+    marr(x){return this.addStyle("marginRight", `${x}px`)}    
+    marb(x){return this.addStyle("marginBottom", `${x}px`)}
     pad(x){return this.addStyle("padding", `${x}px`)}
     disp(x){return this.addStyle("display", x)}    
     df(x){return this.disp("flex")}    
@@ -142,6 +144,7 @@ class SmartDomElement{
     bdr(x,y,z){return this.bdrs(x).bdrw(y).bdrc(z)}
     drg(x){return this.sa("draggable", x)}
     value(){return this.e.value}
+    float(x){return this.addStyle("float", x)}
 
     html(x){this.e.innerHTML = x; return this}
 
@@ -232,9 +235,13 @@ class OptionElement_ extends SmartDomElement{
 
     buildEditDiv(){
         if(this.editOn){
+            let options = this.idParent().props.isContainer ?
+                [{value: "editablelist", display: "Editable List"}, {value: "editablelistcontainer", display: "Editable List Container"}]
+            :
+                [{value: "scalar", display: "Scalar"}]            
             this.editDiv.x().a(
                 div().ww(this.idParent().width).hh(this.idParent().height).bc("#f00").pad(2).mar(-2).a(
-                    Combo({changeCallback: this.change.bind(this), selected: this.props.option.kind, options: [{value: "scalar", display: "Scalar"}, {value: "editablelist", display: "Editable List"}]}).fs(this.idParent().height - 6)
+                    Combo({changeCallback: this.change.bind(this), selected: this.props.option.kind, options: options}).fs(this.idParent().height - 6)
                 )
             )            
         }else{
@@ -250,12 +257,17 @@ class OptionElement_ extends SmartDomElement{
     elementForOption(){
         let option = this.props.option
         let handler = this.idParent().optionClicked.bind(this.idParent(), option, this)         
+        let isContainer = false
+        let label = null
         switch(this.props.option.kind){
-            case "editablelist":
-                let labelWidth = this.idParent().height * 4 
+            case "editablelistcontainer":                
+                isContainer = true
+                label = option.display
+            case "editablelist":            
+                let labelWidth = this.idParent().height * 4
                 return div().dfc().a(
                     div().cp().ww(labelWidth).html(option.display).ae("click", handler),
-                    EditableList({idParent: this.idParent(), id: option.value, width: this.idParent().width - this.idParent().extrawidth - labelWidth * 0.6, height: this.idParent().height})
+                    EditableList({idParent: this.idParent(), isContainer: isContainer, label: label, id: option.value, width: this.idParent().width - this.idParent().extrawidth - labelWidth * 0.6, height: this.idParent().height})
                 )
             default:
                 return div().cp().html(option.display).ae("click", handler)
@@ -293,16 +305,16 @@ class EditableList_ extends SmartDomElement{
         this.width = this.props.width || 400
         this.height = this.props.height || 20        
 
-        this.extrawidth = 65 + this.height * 1.5        
+        this.extrawidth = 65 + this.height * 1.5
 
         this.containerPadding = 2
-        this.selectedPadding = 2
+        this.selectedPadding = 2    
         
         this.ffm().ac("unselectable").dib().a(this.container = div().por().dfc().pad(this.containerPadding).a(
             this.selectedDiv = div().ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
             Button(">", this.switchRoll.bind(this)).marl(2),
-            Button("+", this.addOption.bind(this)).marl(2),
-            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(100).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
+            Button("+", this.addOption.bind(this)).marl(2),            
+            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(200).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
         ))
 
         this.buildOptions()
@@ -331,16 +343,19 @@ class EditableList_ extends SmartDomElement{
         if(sev.do == "dragoption"){
             switch(sev.kind){
                 case "dragstart":
-                    this.draggedOption = sev.e.props.option
-                    sev.e.bc("#ff0")
+                    this.draggedElement = sev.e
+                    this.draggedOption = this.draggedElement.props.option
+                    this.draggedElement.bc("#ff0")
                     break
                 case "dragover":
                     sev.ev.preventDefault()
                     sev.e.bc("#0f0")
+                    this.draggedElement.bc("#ff0")
                     break
                 case "dragleave":
                     sev.ev.preventDefault()
                     sev.e.bc("#00f")
+                    this.draggedElement.bc("#ff0")
                     break
                 case "drop":
                     let dropOption = sev.e.props.option
@@ -359,10 +374,14 @@ class EditableList_ extends SmartDomElement{
         if(!this.state.selected && this.state.options.length) this.state.selected = this.state.options[0]
         this.optionsDiv.x().a(this.state.options.map(option=>
             OptionElement({option: option})
-        ))
-        if(this.state.selected){
-            this.selectedDiv.html(this.state.selected.display)
-        }else this.selectedDiv.x()
+        ))        
+        if(this.props.isContainer){
+            this.selectedDiv.html(this.props.label ? this.props.label : "")
+        }else{
+            if(this.state.selected){
+                this.selectedDiv.html(this.state.selected.display)
+            }else this.selectedDiv.x()
+        }        
     }
 
     switchRoll(){        
@@ -389,11 +408,14 @@ class EditableList_ extends SmartDomElement{
             this.storeState()
             return
         }
-        opt = {kind: "scalar", value: value, display: display}
+        opt = {kind: this.props.isContainer ? "editablelist" : "scalar", value: value, display: display}
         this.state.options.push(opt)
         this.state.selected = opt
         this.buildOptions()
         this.storeState()
+        if(!this.state.rolled){
+            this.switchRoll()
+        }
     }
 }
 function EditableList(props){return new EditableList_(props)}
