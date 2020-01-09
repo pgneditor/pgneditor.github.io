@@ -148,12 +148,15 @@ class SmartDomElement{
     ac(x){return this.sa("class", x)}
     zi(x){return this.addStyle("zIndex", x)}
     fs(x){return this.addStyle("fontSize", `${x}px`)}
+    fw(x){return this.addStyle("fontWeight", x)}
+    fwb(){return this.fw("bold")}
     ff(x){return this.addStyle("fontFamily", x)}
     ffm(){return this.ff("monospace")}
     bdrs(x){return this.addStyle("borderStyle", x)}
-    bdrw(x){return this.addStyle("borderWidth", x)}
+    bdrw(x){return this.addStyle("borderWidth", `${x}px`)}
     bdrc(x){return this.addStyle("borderColor", x)}
-    bdr(x,y,z){return this.bdrs(x).bdrw(y).bdrc(z)}
+    bdrr(x){return this.addStyle("borderRadius", x)}
+    bdr(x,y,z,r){return this.bdrs(x).bdrw(y).bdrc(z).bdrr(`${r}px`)}
     drg(x){return this.sa("draggable", x)}
     value(){return this.e.value}
     setValue(x){this.e.value = x; return this}
@@ -218,6 +221,7 @@ class Slider_ extends SmartDomElement{
 
         this.a(
             div().dfc().a(
+                this.numdiv = div().fwb().pad(2).mar(2).ww(40).hh(20).bc("#ddd").c("#00f"),
                 this.slider = input({type: "range"}).ww(this.sliderWidth).ae("input", this.sliderChanged.bind(this)),
                 this.text = input({type: "text"}).ww(this.textWidth).marl(3).ae("keyup", this.textChanged.bind(this)),
             )
@@ -234,7 +238,7 @@ class Slider_ extends SmartDomElement{
         if(m){            
             [ this.state.value, this.state.min, this.state.max, this.state.step ] = m.slice(1,5).map(x=>parseInt(x));            
         }        
-        this.doLater("setFromState", 3000)
+        this.doLater("setFromState", 2000)
     }
 
     setFromState(){
@@ -247,6 +251,7 @@ class Slider_ extends SmartDomElement{
         this.slider.sa("step", this.state.step)
         this.slider.setValue(this.state.value)
         this.text.setValue(`${this.state.value} [ ${this.state.min} - ${this.state.max} ... ${this.state.step} ]`)
+        this.numdiv.html(`${this.state.value}`)
         this.storeState()
     }
 
@@ -486,7 +491,7 @@ class OptionElement_ extends SmartDomElement{
 
     labeledOptionElement(option, element){
         return div().dfc().a(
-            div().cp().ww(this.labelWidth()).html(option.display).ae("click", this.optionHandler(option)),
+            div().fs(this.idParent().height * 0.7).bdr("solid", 1, "#aaa", 5).marr(2).pad(3).bc("#dfc").cp().ww(this.labelWidth()).html(option.display).ae("click", this.optionHandler(option)),
             element
         )
     }
@@ -581,7 +586,7 @@ class EditableList_ extends SmartDomElement{
         this.selectedPadding = 2    
         
         this.ffm().ac("unselectable").dib().a(this.container = div().por().dfc().pad(this.containerPadding).a(
-            this.selectedDiv = div().ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
+            this.selectedDiv = div().fwb().c("#00f").ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
             Button(">", this.switchRoll.bind(this)).marl(2),
             Button("+", this.addOption.bind(this)).marl(2),            
             this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(400).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
