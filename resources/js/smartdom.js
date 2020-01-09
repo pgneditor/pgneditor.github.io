@@ -200,8 +200,8 @@ class Button_ extends button_{
 function Button(caption, callback){return new Button_(caption, callback)}
 
 class input_ extends SmartDomElement{
-    constructor(propsOpt){
-        super("input", propsOpt)
+    constructor(props){
+        super("input", props)
         
         this.sa("type", this.props.type)
     }
@@ -249,11 +249,35 @@ class Slider_ extends SmartDomElement{
         this.storeState()
     }
 
-    init(){
+    init(){        
         this.setFromState()
     }
 }
 function Slider(props){return new Slider_(props)}
+
+class TextInput_ extends input_{
+    constructor(props){
+        super(props)
+    }
+
+    init(){        
+        this.ae("keyup", this.textChanged.bind(this))
+        this.ae("change", this.textChanged.bind(this))
+        this.setFromState()
+    }
+
+    textChanged(){        
+        this.state.text = this.value()
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.text = this.state.text || ""
+        this.setValue(this.state.text)
+        this.storeState()
+    }
+}
+function TextInput(props){return new TextInput_(props)}
 
 class ComboOption_ extends SmartDomElement{
     constructor(props){
@@ -308,6 +332,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "editablelist", display: "Editable List"},
                     {value: "editablelistcontainer", display: "Editable List Container"},
                     {value: "slider", display: "Slider"},
+                    {value: "text", display: "Text"},
                 ]
             :
                 [{value: "scalar", display: "Scalar"}]            
@@ -358,6 +383,11 @@ class OptionElement_ extends SmartDomElement{
                 return this.labeledOptionElement(
                     option,
                     Slider({idParent: this.idParent(), id: option.value})
+                )
+            case "text":                            
+                return this.labeledOptionElement(
+                    option,
+                    TextInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
                 )
             default:
                 return div().cp().html(option.display).ae("click", this.optionHandler(option))
