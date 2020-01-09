@@ -2,7 +2,7 @@
     "smartdomapp/templates": {
        "options": [
           {
-             "kind": "editablelist",
+             "kind": "editablelistcontainer",
              "value": "default",
              "display": "Default"
           }
@@ -14,8 +14,230 @@
           "display": "Default"
        }
     },
-    "smartdomapp/templates/default": {
+    "smartdomapp/templates/default/clockTime": {
        "options": [],
-       "rolled": false
+       "rolled": false,
+       "min": 0,
+       "max": 60,
+       "step": 1,
+       "value": 3
+    },
+    "smartdomapp/templates/default/startDate": {
+       "options": [],
+       "rolled": false,
+       "dateTime": "2020-01-01T00:00"
+    },
+    "smartdomapp/templates/default/conditions.minRating.rating": {
+       "options": [],
+       "rolled": false,
+       "min": 1500,
+       "max": 2600,
+       "step": 1,
+       "value": 1500
+    },
+    "smartdomapp/templates/default/variant": {
+       "options": [
+          {
+             "kind": "scalar",
+             "value": "1",
+             "display": "Standard"
+          },
+          {
+             "kind": "scalar",
+             "value": "2",
+             "display": "Chess960"
+          },
+          {
+             "kind": "scalar",
+             "value": "4",
+             "display": "King of the Hill"
+          },
+          {
+             "kind": "scalar",
+             "value": "5",
+             "display": "Three-check"
+          },
+          {
+             "kind": "scalar",
+             "value": "6",
+             "display": "Antichess"
+          },
+          {
+             "kind": "scalar",
+             "value": "7",
+             "display": "Atomic"
+          },
+          {
+             "kind": "scalar",
+             "value": "8",
+             "display": "Horde"
+          },
+          {
+             "kind": "scalar",
+             "value": "9",
+             "display": "Racing Kings"
+          }
+       ],
+       "rolled": false,
+       "selected": {
+          "kind": "scalar",
+          "value": "1",
+          "display": "Standard"
+       }
+    },
+    "smartdomapp/templates/default/conditions.nbRatedGame.nb": {
+       "options": [],
+       "rolled": false,
+       "min": 0,
+       "max": 200,
+       "step": 1,
+       "value": 0
+    },
+    "smartdomapp/templates/default/rated": {
+       "options": [],
+       "rolled": false,
+       "checked": true
+    },
+    "smartdomapp/templates/default/conditions.teamMember.teamId": {
+       "options": [],
+       "rolled": false,
+       "text": ""
+    },
+    "smartdomapp/templates/default/waitMinutes": {
+       "options": [],
+       "rolled": false,
+       "min": 1,
+       "max": 60,
+       "step": 1,
+       "value": 5
+    },
+    "smartdomapp/templates/default/conditions.maxRating.rating": {
+       "options": [],
+       "rolled": false,
+       "min": 1000,
+       "max": 2200,
+       "step": 1,
+       "value": 2200
+    },
+    "smartdomapp/templates/default": {
+       "options": [
+          {
+             "kind": "text",
+             "value": "name",
+             "display": "Name"
+          },
+          {
+             "kind": "checkbox",
+             "value": "rated",
+             "display": "Rated"
+          },
+          {
+             "kind": "editablelist",
+             "value": "variant",
+             "display": "Variant"
+          },
+          {
+             "kind": "text",
+             "value": "position",
+             "display": "Initial position"
+          },
+          {
+             "kind": "slider",
+             "value": "clockTime",
+             "display": "Clock initial time"
+          },
+          {
+             "kind": "slider",
+             "value": "clockIncrement",
+             "display": "Clock increment"
+          },
+          {
+             "kind": "slider",
+             "value": "duration",
+             "display": "Duration"
+          },
+          {
+             "kind": "slider",
+             "value": "waitMinutes",
+             "display": "Time before start"
+          },
+          {
+             "kind": "text",
+             "value": "password",
+             "display": "Password"
+          },
+          {
+             "kind": "checkbox",
+             "value": "berserkable",
+             "display": "Berserkable"
+          },
+          {
+             "kind": "datetime",
+             "value": "startDate",
+             "display": "Custom start date"
+          },
+          {
+             "kind": "slider",
+             "value": "conditions.nbRatedGame.nb",
+             "display": "Minimum rated games"
+          },
+          {
+             "kind": "slider",
+             "value": "conditions.minRating.rating",
+             "display": "Minimum rating"
+          },
+          {
+             "kind": "slider",
+             "value": "conditions.maxRating.rating",
+             "display": "Max rating"
+          },
+          {
+             "kind": "text",
+             "value": "conditions.teamMember.teamId",
+             "display": "Only members of team"
+          }
+       ],
+       "rolled": true,
+       "selected": {
+          "kind": "text",
+          "value": "conditions.teamMember.teamId",
+          "display": "Only members of team"
+       }
+    },
+    "smartdomapp/templates/default/password": {
+       "options": [],
+       "rolled": false,
+       "text": ""
+    },
+    "smartdomapp/templates/default/berserkable": {
+       "options": [],
+       "rolled": false,
+       "checked": true
+    },
+    "smartdomapp/templates/default/duration": {
+       "options": [],
+       "rolled": false,
+       "min": 25,
+       "max": 360,
+       "step": 1,
+       "value": 180
+    },
+    "smartdomapp/templates/default/clockIncrement": {
+       "options": [],
+       "rolled": false,
+       "min": 0,
+       "max": 60,
+       "step": 1,
+       "value": 2
+    },
+    "smartdomapp/templates/default/position": {
+       "options": [],
+       "rolled": false,
+       "text": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    "smartdomapp/templates/default/name": {
+       "options": [],
+       "rolled": false,
+       "text": "Blitz"
     }
  }
