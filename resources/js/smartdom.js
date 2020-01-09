@@ -147,6 +147,7 @@ class SmartDomElement{
     sa(key, value){this.e.setAttribute(key, value); return this}
     ac(x){return this.sa("class", x)}
     zi(x){return this.addStyle("zIndex", x)}
+    op(x){return this.addStyle("opacity", x)}
     fs(x){return this.addStyle("fontSize", `${x}px`)}
     fw(x){return this.addStyle("fontWeight", x)}
     fwb(){return this.fw("bold")}
@@ -216,8 +217,8 @@ class Slider_ extends SmartDomElement{
     constructor(props){
         super("div", props)
 
-        this.sliderWidth = this.props.sliderWidth || 150
-        this.textWidth = this.props.textWidth || 150
+        this.sliderWidth = this.props.sliderWidth || 130
+        this.textWidth = this.props.textWidth || 130
 
         this.a(
             div().dfc().a(
@@ -418,6 +419,7 @@ class CheckBoxInput_ extends input_{
     checkedChanged(){                
         this.state.checked = this.e.checked
         this.storeState()
+        if(this.props.changeCallback) this.props.changeCallback(this.state.checked)
     }
 
     setFromState(){
@@ -579,19 +581,48 @@ class OptionElement_ extends SmartDomElement{
         }
     }
 
+    isSelected(){
+        return this.props.option.value == this.idParent().state.selected.value
+    }
+
+    enableChanged(){
+        if(this.props.option.kind == "scalar"){
+            this.isSelected() ?
+                this.elementDiv.op(1).bc("#7f7")
+            :
+                this.elementDiv.op(1).bc("#eee")
+            return
+        }
+        if(this.enableCheckBox.state.checked){            
+            this.isSelected() ?
+                this.elementDiv.op(1).bc("#7f7")
+            :
+                this.elementDiv.op(1).bc("#eee")
+        }else{
+            this.isSelected() ?
+                this.elementDiv.op(0.5).bc("#7f7")
+            :
+                this.elementDiv.op(0.5).bc("#eee")
+        }
+    }
+
     build(){
         let option = this.props.option
         this.x().a(
             div().dfc().a(
                 div({ev: "dragstart dragenter dragover dragleave drop", do: "dragoption", option: option}).cm().drg(true).mar(2).ww(this.dragBoxSize).hh(this.dragBoxSize).bc("#00f"),
-                Button("_", this.editKind.bind(this)).fs(this.idParent().height / 2).marl(2).bc("#ddd"),
-                div().dfc().por().ww(this.idParent().width).mar(2).pad(2).fs(this.idParent().height - 4).bc(option.value == this.idParent().state.selected.value ? "#0f0" : "#eee").a(
+                Button("_", this.editKind.bind(this)).fs(this.idParent().height / 2).marl(2).bc("#ddd"),                
+                option.kind == "scalar" ? div() :
+                this.enableCheckBox = CheckBoxInput({changeCallback: this.enableChanged.bind(this), idParent: this.idParent(), id: option.value + "#enable"}),
+                this.elementDiv = div().dfc().por().ww(this.idParent().width).mar(2).pad(2).fs(this.idParent().height - 4).a(
                     this.elementForOption(),
                     this.editDiv = div().zi(20).poa()
                 ),                  
                 Button("X", this.idParent().delOption.bind(this.idParent(), option)).fs(this.idParent().height / 2).marl(2).bc("#faa"),                
             )
         )
+
+        this.enableChanged()
     }
 
     init(){        
@@ -610,7 +641,7 @@ class EditableList_ extends SmartDomElement{
         this.width = this.props.width || 400
         this.height = this.props.height || 20        
 
-        this.extrawidth = 65 + this.height * 1.5
+        this.extrawidth = 85 + this.height * 1.5
 
         this.containerPadding = 2
         this.selectedPadding = 2    
@@ -619,7 +650,7 @@ class EditableList_ extends SmartDomElement{
             this.selectedDiv = div().fwb().c("#00f").ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
             Button(">", this.switchRoll.bind(this)).marl(2),
             Button("+", this.addOption.bind(this)).marl(2),            
-            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(400).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
+            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(550).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
         ))
 
         this.buildOptions()

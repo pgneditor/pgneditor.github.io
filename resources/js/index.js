@@ -3,7 +3,7 @@ class App extends SmartDomElement{
         super("div", props)
 
         this.a(
-            EditableList({id: "templates", showSelected: true, isContainer: true, label: "Templates", width: 600, height: 20}),            
+            EditableList({id: "templates", showSelected: true, isContainer: true, label: "Templates", width: 600, height: 22}),            
             div().a(
                 this.statetext = TextAreaInput().w(800).h(400)
             ),
