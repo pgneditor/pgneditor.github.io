@@ -285,6 +285,30 @@ class TextInput_ extends input_{
 }
 function TextInput(props){return new TextInput_(props)}
 
+class TextAreaInput_ extends SmartDomElement{
+    constructor(props){
+        super("textarea", props)
+    }
+
+    init(){        
+        this.ae("keyup", this.textChanged.bind(this))
+        this.ae("change", this.textChanged.bind(this))
+        this.setFromState()
+    }
+
+    textChanged(){        
+        this.state.text = this.value()
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.text = this.state.text || ""
+        this.setValue(this.state.text)
+        this.storeState()
+    }
+}
+function TextAreaInput(props){return new TextAreaInput_(props)}
+
 class DateInput_ extends input_{
     constructor(props){
         super({...{type: "date"}, ...props})
@@ -458,6 +482,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "editablelistcontainer", display: "Editable List Container"},
                     {value: "slider", display: "Slider"},
                     {value: "text", display: "Text"},
+                    {value: "textarea", display: "Text Area"},
                     {value: "date", display: "Date"},
                     {value: "time", display: "Time"},
                     {value: "datetime", display: "Date Time"},
@@ -518,6 +543,11 @@ class OptionElement_ extends SmartDomElement{
                 return this.labeledOptionElement(
                     option,
                     TextInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                )
+            case "textarea":                            
+                return this.labeledOptionElement(
+                    option,
+                    TextAreaInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
                 )
             case "date":                            
                 return this.labeledOptionElement(
@@ -650,7 +680,7 @@ class EditableList_ extends SmartDomElement{
         this.optionsDiv.x().a(this.state.options.map(option=>
             OptionElement({option: option})
         ))        
-        if(this.props.isContainer){
+        if(this.props.isContainer && (!this.props.showSelected)){
             this.selectedDiv.html(this.props.label ? this.props.label : "")
         }else{
             if(this.state.selected){

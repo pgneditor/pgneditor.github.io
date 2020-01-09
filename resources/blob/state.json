@@ -1,0 +1,21 @@
+{
+    "smartdomapp/templates": {
+       "options": [
+          {
+             "kind": "editablelist",
+             "value": "default",
+             "display": "Default"
+          }
+       ],
+       "rolled": false,
+       "selected": {
+          "kind": "editablelist",
+          "value": "default",
+          "display": "Default"
+       }
+    },
+    "smartdomapp/templates/default": {
+       "options": [],
+       "rolled": false
+    }
+ }
