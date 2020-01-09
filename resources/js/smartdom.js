@@ -351,6 +351,30 @@ class DateTimeInput_ extends input_{
 }
 function DateTimeInput(props){return new DateTimeInput_(props)}
 
+class ColorInput_ extends input_{
+    constructor(props){
+        super({...{type: "color"}, ...props})
+    }
+
+    init(){        
+        this.ae("keyup", this.colorChanged.bind(this))
+        this.ae("change", this.colorChanged.bind(this))        
+        this.setFromState()
+    }
+
+    colorChanged(){        
+        this.state.color = this.value()
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.color = this.state.color || "#ffffff"
+        this.setValue(this.state.color)
+        this.storeState()
+    }
+}
+function ColorInput(props){return new ColorInput_(props)}
+
 class ComboOption_ extends SmartDomElement{
     constructor(props){
         super("option", props)
@@ -408,6 +432,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "date", display: "Date"},
                     {value: "time", display: "Time"},
                     {value: "datetime", display: "Date Time"},
+                    {value: "color", display: "Color"},
                 ]
             :
                 [{value: "scalar", display: "Scalar"}]            
@@ -478,6 +503,11 @@ class OptionElement_ extends SmartDomElement{
                 return this.labeledOptionElement(
                     option,
                     DateTimeInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                )
+            case "color":                            
+                return this.labeledOptionElement(
+                    option,
+                    ColorInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
                 )
             default:
                 return div().cp().html(option.display).ae("click", this.optionHandler(option))
