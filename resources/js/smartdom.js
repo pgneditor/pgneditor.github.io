@@ -257,7 +257,7 @@ function Slider(props){return new Slider_(props)}
 
 class TextInput_ extends input_{
     constructor(props){
-        super(props)
+        super({...{type: "text"}, ...props})
     }
 
     init(){        
@@ -278,6 +278,78 @@ class TextInput_ extends input_{
     }
 }
 function TextInput(props){return new TextInput_(props)}
+
+class DateInput_ extends input_{
+    constructor(props){
+        super({...{type: "date"}, ...props})
+    }
+
+    init(){        
+        this.ae("keyup", this.dateChanged.bind(this))
+        this.ae("change", this.dateChanged.bind(this))
+        this.setFromState()
+    }
+
+    dateChanged(){        
+        this.state.date = this.value()
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.date = this.state.date || "2020-01-01"
+        this.setValue(this.state.date)
+        this.storeState()
+    }
+}
+function DateInput(props){return new DateInput_(props)}
+
+class TimeInput_ extends input_{
+    constructor(props){
+        super({...{type: "time"}, ...props})
+    }
+
+    init(){        
+        this.ae("keyup", this.timeChanged.bind(this))
+        this.ae("change", this.timeChanged.bind(this))        
+        this.setFromState()
+    }
+
+    timeChanged(){        
+        this.state.time = this.value()
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.time = this.state.time || "00:00"
+        this.setValue(this.state.time)
+        this.storeState()
+    }
+}
+function TimeInput(props){return new TimeInput_(props)}
+
+class DateTimeInput_ extends input_{
+    constructor(props){
+        super({...{type: "datetime-local"}, ...props})
+    }
+
+    init(){        
+        this.ae("keyup", this.dateTimeChanged.bind(this))
+        this.ae("change", this.dateTimeChanged.bind(this))        
+        this.setFromState()
+    }
+
+    dateTimeChanged(){        
+        this.state.dateTime = this.value()
+        this.storeState()
+    }
+
+    setFromState(){
+        this.state.dateTime = this.state.dateTime || "2020-01-01T00:00"
+        this.setValue(this.state.dateTime)
+        this.storeState()
+    }
+}
+function DateTimeInput(props){return new DateTimeInput_(props)}
 
 class ComboOption_ extends SmartDomElement{
     constructor(props){
@@ -333,6 +405,9 @@ class OptionElement_ extends SmartDomElement{
                     {value: "editablelistcontainer", display: "Editable List Container"},
                     {value: "slider", display: "Slider"},
                     {value: "text", display: "Text"},
+                    {value: "date", display: "Date"},
+                    {value: "time", display: "Time"},
+                    {value: "datetime", display: "Date Time"},
                 ]
             :
                 [{value: "scalar", display: "Scalar"}]            
@@ -389,6 +464,21 @@ class OptionElement_ extends SmartDomElement{
                     option,
                     TextInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
                 )
+            case "date":                            
+                return this.labeledOptionElement(
+                    option,
+                    DateInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                )
+            case "time":                            
+                return this.labeledOptionElement(
+                    option,
+                    TimeInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                )
+            case "datetime":                            
+                return this.labeledOptionElement(
+                    option,
+                    DateTimeInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                )
             default:
                 return div().cp().html(option.display).ae("click", this.optionHandler(option))
         }
@@ -434,7 +524,7 @@ class EditableList_ extends SmartDomElement{
             this.selectedDiv = div().ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
             Button(">", this.switchRoll.bind(this)).marl(2),
             Button("+", this.addOption.bind(this)).marl(2),            
-            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(200).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
+            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(400).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
         ))
 
         this.buildOptions()
