@@ -23,6 +23,17 @@ class SmartDomElement{
                 this.ae(kind, this.handleEventAgent.bind(this))
             }
         }
+
+        this.timeouts = {}
+    }
+
+    doLater(func, delay){        
+        if(this[func]){            
+            let to = this.timeouts[func]
+            if(to) clearTimeout(to)
+            this.timeouts[func] = null
+            this.timeouts[func] = setTimeout(this[func].bind(this), delay)
+        }
     }
 
     mountedSmart(){
@@ -43,9 +54,9 @@ class SmartDomElement{
         }
     }
 
-    storeState(){
+    storeState(){        
         if(this.id){
-            let store = JSON.stringify(this.state)                                    
+            let store = JSON.stringify(this.state)                                                
             localStorage.setItem(this.path(), store)
         }
     }
@@ -144,6 +155,7 @@ class SmartDomElement{
     bdr(x,y,z){return this.bdrs(x).bdrw(y).bdrc(z)}
     drg(x){return this.sa("draggable", x)}
     value(){return this.e.value}
+    setValue(x){this.e.value = x; return this}
     float(x){return this.addStyle("float", x)}
 
     html(x){this.e.innerHTML = x; return this}
@@ -178,7 +190,7 @@ class button_ extends SmartDomElement{
 }
 function button(props){return new button_(props)}
 
-class Button_ extends button{
+class Button_ extends button_{
     constructor(caption, callback){
         super()
         this.html(caption)
@@ -186,6 +198,62 @@ class Button_ extends button{
     }
 }
 function Button(caption, callback){return new Button_(caption, callback)}
+
+class input_ extends SmartDomElement{
+    constructor(propsOpt){
+        super("input", propsOpt)
+        
+        this.sa("type", this.props.type)
+    }
+}
+function input(props){return new input_(props)}
+
+class Slider_ extends SmartDomElement{
+    constructor(props){
+        super("div", props)
+
+        this.sliderWidth = this.props.sliderWidth || 150
+        this.textWidth = this.props.textWidth || 150
+
+        this.a(
+            div().dfc().a(
+                this.slider = input({type: "range"}).ww(this.sliderWidth).ae("input", this.sliderChanged.bind(this)),
+                this.text = input({type: "text"}).ww(this.textWidth).marl(3).ae("keyup", this.textChanged.bind(this)),
+            )
+        )
+    }
+
+    sliderChanged(){
+        this.state.value = this.slider.value()        
+        this.setFromState()
+    }
+
+    textChanged(){
+        let m = this.text.value().match(/([\d]+)[^\d]+([\d]+)[^\d]+([\d]+)[^\d]+([\d]+)/)
+        if(m){            
+            [ this.state.value, this.state.min, this.state.max, this.state.step ] = m.slice(1,5).map(x=>parseInt(x));            
+        }        
+        this.doLater("setFromState", 3000)
+    }
+
+    setFromState(){
+        this.state.min = this.state.min || 0
+        this.state.max = this.state.max || 100
+        this.state.step = this.state.step || 1
+        this.state.value = this.state.value || 0
+        this.slider.sa("min", this.state.min)
+        this.slider.sa("max", this.state.max)
+        this.slider.sa("step", this.state.step)
+        this.slider.setValue(this.state.value)
+        this.text.setValue(`${this.state.value} [ ${this.state.min} - ${this.state.max} ... ${this.state.step} ]`)
+        this.storeState()
+    }
+
+    init(){
+        this.setFromState()
+    }
+}
+function Slider(props){return new Slider_(props)}
 
 class ComboOption_ extends SmartDomElement{
     constructor(props){
@@ -236,7 +304,11 @@ class OptionElement_ extends SmartDomElement{
     buildEditDiv(){
         if(this.editOn){
             let options = this.idParent().props.isContainer ?
-                [{value: "editablelist", display: "Editable List"}, {value: "editablelistcontainer", display: "Editable List Container"}]
+                [
+                    {value: "editablelist", display: "Editable List"},
+                    {value: "editablelistcontainer", display: "Editable List Container"},
+                    {value: "slider", display: "Slider"},
+                ]
             :
                 [{value: "scalar", display: "Scalar"}]            
             this.editDiv.x().a(
@@ -254,23 +326,41 @@ class OptionElement_ extends SmartDomElement{
         this.buildEditDiv()
     }
 
+    labelWidth(){
+        return this.idParent().height * 4
+    }
+
+    optionHandler(option){
+        return this.idParent().optionClicked.bind(this.idParent(), option, this)         
+    }
+
+    labeledOptionElement(option, element){
+        return div().dfc().a(
+            div().cp().ww(this.labelWidth()).html(option.display).ae("click", this.optionHandler(option)),
+            element
+        )
+    }
+
     elementForOption(){
         let option = this.props.option
-        let handler = this.idParent().optionClicked.bind(this.idParent(), option, this)         
         let isContainer = false
         let label = null
         switch(this.props.option.kind){
             case "editablelistcontainer":                
                 isContainer = true
                 label = option.display
-            case "editablelist":            
-                let labelWidth = this.idParent().height * 4
-                return div().dfc().a(
-                    div().cp().ww(labelWidth).html(option.display).ae("click", handler),
-                    EditableList({idParent: this.idParent(), isContainer: isContainer, label: label, id: option.value, width: this.idParent().width - this.idParent().extrawidth - labelWidth * 0.6, height: this.idParent().height})
+            case "editablelist":                            
+                return this.labeledOptionElement(
+                    option,
+                    EditableList({idParent: this.idParent(), isContainer: isContainer, label: label, id: option.value, width: this.idParent().width - this.idParent().extrawidth - this.labelWidth() * 0.6, height: this.idParent().height})
+                )
+            case "slider":                            
+                return this.labeledOptionElement(
+                    option,
+                    Slider({idParent: this.idParent(), id: option.value})
                 )
             default:
-                return div().cp().html(option.display).ae("click", handler)
+                return div().cp().html(option.display).ae("click", this.optionHandler(option))
         }
     }
 
