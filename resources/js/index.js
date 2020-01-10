@@ -42,6 +42,16 @@ class App extends SmartDomElement{
     }
 
     handleEvent(sev){                    
+        switch(sev.do){
+            case "handleWidgetButtonPressed":
+                let m = sev.path.match(/^smartdomapp\/templates\/([^\/]+)/)
+                if(m){
+                    let username = getLocal(m[0] + "/username").text
+                    let password = getLocal(m[0] + "/password").text
+                    console.log(username, password)
+                }
+                break
+        }
     }
 }
 

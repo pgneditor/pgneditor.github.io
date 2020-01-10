@@ -35,3 +35,9 @@ function simpleFetch(url, params, callback){
 function storeLocal(key, obj){
     localStorage.setItem(key, JSON.stringify(obj))
 }
+
+function getLocal(key, def){
+    let stored = localStorage.getItem(key)
+    if(stored) return JSON.parse(stored)
+    return def
+}

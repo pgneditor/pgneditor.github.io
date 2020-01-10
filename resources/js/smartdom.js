@@ -7,6 +7,7 @@ class SmartDomEvent{
     }
 
     get do(){return this.e.props.do}
+    get path(){return this.e.path()}
 }
 
 class SmartDomElement{
@@ -197,17 +198,17 @@ class div_ extends SmartDomElement{
 function div(props){return new div_(props)}
 
 class button_ extends SmartDomElement{
-    constructor(propsOpt){
-        super("button", propsOpt)
+    constructor(props){
+        super("button", props)
     }
 }
 function button(props){return new button_(props)}
 
 class Button_ extends button_{
-    constructor(caption, callback){
-        super()
+    constructor(caption, callback, props){
+        super("button", props)
         this.html(caption)
-        this.ae("click", callback)
+        if(callback) this.ae("click", callback)
     }
 }
 function Button(caption, callback){return new Button_(caption, callback)}
@@ -477,15 +478,10 @@ class OptionElement_ extends SmartDomElement{
         this.editOn = false
     }
 
-    change(kind){
-        this.props.option.kind = kind        
-        this.editOn = false
-        this.build()
-        this.idParent().storeState()
-    }
-
     buildEditDiv(){
         let ip = this.idParent()
+
+        console.log(this.editOn)
 
         if(this.editOn){
             let options = this.idParent().props.isContainer ?
@@ -500,6 +496,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "datetime", display: "Date Time"},
                     {value: "color", display: "Color"},
                     {value: "checkbox", display: "Checkbox"},
+                    {value: "button", display: "Button"},
                     {value: "clone", display: "Clone Selected Option"},
                 ]
             :
@@ -521,9 +518,14 @@ class OptionElement_ extends SmartDomElement{
         }
     }
 
-    kindChanged(kind){
+    kindChanged(kind){        
         if(kind == "clone"){
             this.idParent().cloneToOption(this.props.option.value)
+        }else{            
+            this.props.option.kind = kind        
+            this.editOn = false
+            this.build()
+            this.idParent().storeState()
         }
     }
 
@@ -642,6 +644,19 @@ class OptionElement_ extends SmartDomElement{
                         idParent: ip,
                         id: option.value
                     }).hh(ip.optionCheckBoxSize).ww(ip.optionCheckBoxSize)
+                )
+            case "button":                            
+                return this.labeledOptionElement(
+                    option,
+                    button({
+                        value: option.value,
+                        ev: "click",
+                        do: "handleWidgetButtonPressed",
+                        idParent: ip,
+                        id: option.value
+                    })
+                    .html(option.display)
+                    .fs(ip.widgetButtonFontSize).pad(ip.widgetPadding)
                 )
             default:
                 return div().addStyle("width", "100%").tac().cp().html(option.display)
@@ -788,6 +803,7 @@ class EditableList_ extends SmartDomElement{
         this.optionCheckBoxSize             = this.height * 0.8
         this.editDivZIndex                  = 20
         this.widgetFontSize                 = this.height * 0.9
+        this.widgetButtonFontSize           = this.widgetFontSize * 0.8
         this.widgetPadding                  = 2        
         this.optionEditDivBackgroundColor   = "#f00"
         this.optionEditDivPadding           = 2
