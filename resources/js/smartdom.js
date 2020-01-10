@@ -481,8 +481,6 @@ class OptionElement_ extends SmartDomElement{
     buildEditDiv(){
         let ip = this.idParent()
 
-        console.log(this.editOn)
-
         if(this.editOn){
             let options = this.idParent().props.isContainer ?
                 [
