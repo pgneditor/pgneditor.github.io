@@ -31,3 +31,7 @@ function simpleFetch(url, params, callback){
         }
     )
 }
+
+function storeLocal(key, obj){
+    localStorage.setItem(key, JSON.stringify(obj))
+}

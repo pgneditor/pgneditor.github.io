@@ -169,6 +169,7 @@ class SmartDomElement{
     float(x){return this.addStyle("float", x)}
     ta(x){return this.addStyle("textAlign", x)}
     tac(){return this.ta("center")}
+    siv(x){this.e.scrollIntoView(x); return this}
 
     html(x){this.e.innerHTML = x; return this}
 
@@ -701,6 +702,10 @@ class OptionElement_ extends SmartDomElement{
         )
 
         this.enableChanged()
+
+        if(this.isSelected()){
+            setTimeout(function(){this.siv()}.bind(this), 500)
+        }
     }
 
     init(){                
@@ -733,8 +738,7 @@ class EditableList_ extends SmartDomElement{
             let m = entry[0].match(new RegExp(`^${path}/${sourceOption.value}(.*)`))
             if(m){
                 let storedOpt = localStorage.getItem(m[0])                             
-                let targetPath = path + "/" + targetOption.value + m[1]
-                console.log(targetPath)
+                let targetPath = path + "/" + targetOption.value + m[1]                
                 localStorage.setItem(targetPath, storedOpt)
             }
         }
@@ -755,6 +759,7 @@ class EditableList_ extends SmartDomElement{
         this.optionsDivBorderColor          = "#aaa"
         this.optionsDivBakcgroundColor      = "#ddd"
         this.optionsDivMinHeight            = 550
+        this.optionsDivMaxHeight            = 550
         this.optionsDivZIndex               = 10
         this.optionsDivBorderWidth          = this.height / 6
         this.optionsDivBorderStyle          = "solid"
@@ -816,7 +821,7 @@ class EditableList_ extends SmartDomElement{
             .bc(this.selectedDivBackgroundColor).c(this.selectedDivColor)
 
         this.optionsDiv = div().poa().ovfys().zi(this.optionsDivZIndex)            
-            .ww(this.optionsDivWidth).mih(this.optionsDivMinHeight)
+            .ww(this.optionsDivWidth).mih(this.optionsDivMinHeight).mah(this.optionsDivMaxHeight)
             .t(this.optionsDivTop).l(this.optionsDivLeft)
             .bdr(this.optionsDivBorderStyle, this.optionsDivBorderWidth, this.optionsDivBorderColor)
             .bc(this.optionsDivBakcgroundColor)
@@ -932,7 +937,7 @@ class EditableList_ extends SmartDomElement{
         opt = {
             kind: this.props.isContainer ? "editablelist" : "scalar",
             value: value, display: display
-        }
+        }        
         this.state.options.push(opt)
         this.state.selected = opt
         this.buildOptions()
@@ -940,6 +945,10 @@ class EditableList_ extends SmartDomElement{
         if(!this.state.rolled){
             this.switchRoll()
         }
+
+        let path = this.path() + "/" + opt.value + "#enable"        
+        storeLocal(path, {checked: true})
+        this.buildOptions()
     }
 }
 function EditableList(props){return new EditableList_(props)}
