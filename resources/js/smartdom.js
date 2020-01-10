@@ -499,6 +499,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "datetime", display: "Date Time"},
                     {value: "color", display: "Color"},
                     {value: "checkbox", display: "Checkbox"},
+                    {value: "clone", display: "Clone Selected Option"},
                 ]
             :
                 [{value: "scalar", display: "Scalar"}]            
@@ -508,7 +509,7 @@ class OptionElement_ extends SmartDomElement{
                     .pad(ip.optionEditDivPadding)
                     .mar(ip.optionEditDivMargin).a(
                         Combo({
-                            changeCallback: this.change.bind(this),
+                            changeCallback: this.kindChanged.bind(this),
                             selected: this.props.option.kind,
                             options: options
                         }).fs(ip.optionEditComboFontSize)
@@ -516,6 +517,12 @@ class OptionElement_ extends SmartDomElement{
             )            
         }else{
             this.editDiv.x()
+        }
+    }
+
+    kindChanged(kind){
+        if(kind == "clone"){
+            this.idParent().cloneToOption(this.props.option.value)
         }
     }
 
@@ -551,7 +558,7 @@ class OptionElement_ extends SmartDomElement{
         let label = null
         let ip = this.idParent()
 
-        switch(this.props.option.kind){
+        switch(option.kind){
             case "editablelistcontainer":                
                 isContainer = true
                 label = option.display
@@ -707,6 +714,28 @@ class EditableList_ extends SmartDomElement{
         super("div", props)
     }
 
+    cloneToOption(value){
+        let targetOption = this.findOptionByValue(value)
+        if(!this.state.selected){
+            window.alert("Nothing to clone.")
+            return
+        }
+        let sourceOption = this.findOptionByValue(this.state.selected.value)        
+        for(let key in sourceOption){
+            if(!["value", "display"].includes(key)) targetOption[key] = sourceOption[key]
+        }
+        this.buildOptions()
+        this.storeState()
+
+        let path = this.path()
+
+        let storedOpt = localStorage.getItem(path + "/" + sourceOption.value)
+        localStorage.setItem(path + "/" + targetOption.value, storedOpt)
+        
+        this.buildOptions()
+        this.storeState()
+    }
+
     init(){                        
         this.width                          = this.props.width || 400
         this.height                         = this.props.height || 20        
@@ -807,7 +836,7 @@ class EditableList_ extends SmartDomElement{
     optionClicked(option, oe){                
         if(oe.editOn) return
         this.state.selected = option
-        this.state.rolled = true        
+        this.state.rolled = !this.props.isContainer
         this.buildOptions()
         this.switchRoll()
     }
