@@ -729,8 +729,15 @@ class EditableList_ extends SmartDomElement{
 
         let path = this.path()
 
-        let storedOpt = localStorage.getItem(path + "/" + sourceOption.value)
-        localStorage.setItem(path + "/" + targetOption.value, storedOpt)
+        for(let entry of Object.entries(localStorage)){
+            let m = entry[0].match(new RegExp(`^${path}/${sourceOption.value}(.*)`))
+            if(m){
+                let storedOpt = localStorage.getItem(m[0])                             
+                let targetPath = path + "/" + targetOption.value + m[1]
+                console.log(targetPath)
+                localStorage.setItem(targetPath, storedOpt)
+            }
+        }
         
         this.buildOptions()
         this.storeState()
