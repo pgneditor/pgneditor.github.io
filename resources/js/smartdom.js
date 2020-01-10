@@ -3,6 +3,7 @@ class SmartDomEvent{
         this.ev = ev
         this.e = e        
         this.kind = ev.type        
+        this.stopPropagation = false
     }
 
     get do(){return this.e.props.do}
@@ -95,8 +96,9 @@ class SmartDomElement{
 
     handleEventAgent(ev){                
         let sev = new SmartDomEvent(ev, this)
-        for(let ip of this.idParentChain()){                        
+        for(let ip of this.idParentChain().reverse()){                        
             ip.handleEvent(sev)
+            if(sev.stopPropagation) return
         }
     }
 
@@ -159,9 +161,12 @@ class SmartDomElement{
     bdrr(x){return this.addStyle("borderRadius", x)}
     bdr(x,y,z,r){return this.bdrs(x).bdrw(y).bdrc(z).bdrr(`${r}px`)}
     drg(x){return this.sa("draggable", x)}
+    drgb(){return this.drg("true")}
     value(){return this.e.value}
     setValue(x){this.e.value = x; return this}
     float(x){return this.addStyle("float", x)}
+    ta(x){return this.addStyle("textAlign", x)}
+    tac(){return this.ta("center")}
 
     html(x){this.e.innerHTML = x; return this}
 
@@ -217,12 +222,12 @@ class Slider_ extends SmartDomElement{
     constructor(props){
         super("div", props)
 
-        this.sliderWidth = this.props.sliderWidth || 130
-        this.textWidth = this.props.textWidth || 130
+        this.sliderWidth = this.props.sliderWidth || 150
+        this.textWidth = this.props.textWidth || 150
 
         this.a(
             div().dfc().a(
-                this.numdiv = div().fwb().pad(2).mar(2).ww(40).hh(20).bc("#ddd").c("#00f"),
+                this.numdiv = div().fwb().pad(3).mar(2).ww(60).hh(20).bc("#ddd").c("#00f"),
                 this.slider = input({type: "range"}).ww(this.sliderWidth).ae("input", this.sliderChanged.bind(this)),
                 this.text = input({type: "text"}).ww(this.textWidth).marl(3).ae("keyup", this.textChanged.bind(this)),
             )
@@ -477,6 +482,8 @@ class OptionElement_ extends SmartDomElement{
     }
 
     buildEditDiv(){
+        let ip = this.idParent()
+
         if(this.editOn){
             let options = this.idParent().props.isContainer ?
                 [
@@ -494,9 +501,16 @@ class OptionElement_ extends SmartDomElement{
             :
                 [{value: "scalar", display: "Scalar"}]            
             this.editDiv.x().a(
-                div().ww(this.idParent().width).hh(this.idParent().height).bc("#f00").pad(2).mar(-2).a(
-                    Combo({changeCallback: this.change.bind(this), selected: this.props.option.kind, options: options}).fs(this.idParent().height - 6)
-                )
+                div().ww(ip.optionEditDivWidth).hh(ip.height)
+                    .bc(ip.optionEditDivBackgroundColor)
+                    .pad(ip.optionEditDivPadding)
+                    .mar(ip.optionEditDivMargin).a(
+                        Combo({
+                            changeCallback: this.change.bind(this),
+                            selected: this.props.option.kind,
+                            options: options
+                        }).fs(ip.optionEditComboFontSize)
+                    )
             )            
         }else{
             this.editDiv.x()
@@ -508,17 +522,23 @@ class OptionElement_ extends SmartDomElement{
         this.buildEditDiv()
     }
 
-    labelWidth(){
-        return this.idParent().height * 4
-    }
-
     optionHandler(option){
         return this.idParent().optionClicked.bind(this.idParent(), option, this)         
     }
 
     labeledOptionElement(option, element){
+        let ip = this.idParent()
+
+        this.labelDiv = div().ww(ip.optionLabelWidth)
+            .marr(ip.optionLabelMarginRight).pad(ip.optionLabelPadding)
+            .fs(ip.optionLabelFontSize)
+            .bdr(ip.optionLabelBorderStyle, ip.optionLabelBorderWidth, ip.optionLabelBorderColor, ip.optionLabelBorderRadius)
+            .bc(ip.optionLabelBackgroundColor).cp()
+            .html(option.display)
+            .ae("click", this.optionHandler(option))
+
         return div().dfc().a(
-            div().fs(this.idParent().height * 0.7).bdr("solid", 1, "#aaa", 5).marr(2).pad(3).bc("#dfc").cp().ww(this.labelWidth()).html(option.display).ae("click", this.optionHandler(option)),
+            this.labelDiv,            
             element
         )
     }
@@ -527,6 +547,8 @@ class OptionElement_ extends SmartDomElement{
         let option = this.props.option
         let isContainer = false
         let label = null
+        let ip = this.idParent()
+
         switch(this.props.option.kind){
             case "editablelistcontainer":                
                 isContainer = true
@@ -534,51 +556,87 @@ class OptionElement_ extends SmartDomElement{
             case "editablelist":                            
                 return this.labeledOptionElement(
                     option,
-                    EditableList({idParent: this.idParent(), isContainer: isContainer, label: label, id: option.value, width: this.idParent().width - this.idParent().extrawidth - this.labelWidth() * 0.6, height: this.idParent().height})
+                    EditableList({
+                        optionChild: true,
+                        idParent: ip,
+                        isContainer: isContainer,
+                        label: label,
+                        id: option.value,
+                        width: ip.childEditableListWidth,
+                        height: ip.height
+                    })
                 )
             case "slider":                            
                 return this.labeledOptionElement(
                     option,
-                    Slider({idParent: this.idParent(), id: option.value})
+                    Slider({
+                        idParent: ip,
+                        id: option.value
+                    })
                 )
             case "text":                            
                 return this.labeledOptionElement(
                     option,
-                    TextInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                    TextInput({
+                        idParent: ip,
+                        id: option.value
+                    })
+                    .fs(ip.widgetFontSize).ffm()                    
+                    .pad(ip.widgetPadding)
+                    .ww(ip.widgetWidth)
                 )
             case "textarea":                            
                 return this.labeledOptionElement(
                     option,
-                    TextAreaInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                    TextAreaInput({
+                        idParent: ip,
+                        id: option.value
+                    }).fs(ip.widgetFontSize).pad(ip.widgetPadding)
                 )
             case "date":                            
                 return this.labeledOptionElement(
                     option,
-                    DateInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                    DateInput({
+                        idParent: ip,
+                        id: option.value
+                    }).fs(ip.widgetFontSize).pad(ip.widgetPadding)
                 )
             case "time":                            
                 return this.labeledOptionElement(
                     option,
-                    TimeInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                    TimeInput({
+                        idParent: ip,
+                        id: option.value
+                    }).fs(ip.widgetFontSize).pad(ip.widgetPadding)
                 )
             case "datetime":                            
                 return this.labeledOptionElement(
                     option,
-                    DateTimeInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                    DateTimeInput({
+                        idParent: ip,
+                        id: option.value
+                    }).fs(ip.widgetFontSize).pad(ip.widgetPadding)
                 )
             case "color":                            
                 return this.labeledOptionElement(
                     option,
-                    ColorInput({idParent: this.idParent(), id: option.value}).fs(this.idParent().height - 5).pad(2)
+                    ColorInput({
+                        idParent: ip,
+                        id: option.value
+                    }).fs(ip.widgetFontSize).pad(ip.widgetPadding)
                 )
             case "checkbox":                            
                 return this.labeledOptionElement(
                     option,
-                    CheckBoxInput({idParent: this.idParent(), id: option.value}).hh(this.idParent().height).ww(this.idParent().height)
+                    CheckBoxInput({
+                        idParent: ip,
+                        id: option.value
+                    }).hh(ip.optionCheckBoxSize).ww(ip.optionCheckBoxSize)
                 )
             default:
-                return div().cp().html(option.display).ae("click", this.optionHandler(option))
-        }
+                return div().addStyle("width", "100%").tac().cp().html(option.display)
+                    .ae("click", this.optionHandler(option))
+        }        
     }
 
     isSelected(){
@@ -586,47 +644,57 @@ class OptionElement_ extends SmartDomElement{
     }
 
     enableChanged(){
-        if(this.props.option.kind == "scalar"){
-            this.isSelected() ?
-                this.elementDiv.op(1).bc("#7f7")
-            :
-                this.elementDiv.op(1).bc("#eee")
-            return
-        }
-        if(this.enableCheckBox.state.checked){            
-            this.isSelected() ?
-                this.elementDiv.op(1).bc("#7f7")
-            :
-                this.elementDiv.op(1).bc("#eee")
-        }else{
-            this.isSelected() ?
-                this.elementDiv.op(0.5).bc("#7f7")
-            :
-                this.elementDiv.op(0.5).bc("#eee")
-        }
+        let ip = this.idParent()
+
+        this.elementDiv            
+            .bc(this.isSelected() ? ip.optionSelectedBackgroundColor : ip.optionBackgroundColor)
+
+        this.elementDiv
+            .op(this.enableCheckBox.state.checked ? ip.optionEnabledOpacity : ip.optionDisabledOpacity)
     }
 
     build(){
         let option = this.props.option
+        let ip = this.idParent()
+
+        this.dragBox = div({
+                ev: "dragstart dragenter dragover dragleave drop",
+                do: "dragoption", option: option
+            })
+            .ww(ip.dragBoxSize).hh(ip.dragBoxSize).mar(ip.optionButtonLeftMargin)
+            .cm().drgb().bc(ip.dragBoxColor)
+
+        this.editOptionButton = Button("_", this.editKind.bind(this))
+            .fs(ip.optionButtonFontSize).marl(ip.optionButtonLeftMargin).bc(ip.editOptionButtonColor)
+
+        this.enableCheckBox = CheckBoxInput({
+            changeCallback: this.enableChanged.bind(this),
+            idParent: ip, id: option.value + "#enable"
+        })
+
+        this.deleteButton = Button("X", ip.delOption.bind(ip, option))
+            .fs(ip.optionButtonFontSize).marl(ip.optionButtonLeftMargin).bc(ip.deleteButtonColor)
+
+        this.elementDiv = div().ww(ip.elementDivWidth).dfc().por().mar(2).pad(2)
+            .fs(ip.optionElementDivFontSize)
+
         this.x().a(
             div().dfc().a(
-                div({ev: "dragstart dragenter dragover dragleave drop", do: "dragoption", option: option}).cm().drg(true).mar(2).ww(this.dragBoxSize).hh(this.dragBoxSize).bc("#00f"),
-                Button("_", this.editKind.bind(this)).fs(this.idParent().height / 2).marl(2).bc("#ddd"),                
-                option.kind == "scalar" ? div() :
-                this.enableCheckBox = CheckBoxInput({changeCallback: this.enableChanged.bind(this), idParent: this.idParent(), id: option.value + "#enable"}),
-                this.elementDiv = div().dfc().por().ww(this.idParent().width).mar(2).pad(2).fs(this.idParent().height - 4).a(
+                this.dragBox,
+                this.editOptionButton,                
+                this.enableCheckBox,
+                this.elementDiv.a(
                     this.elementForOption(),
-                    this.editDiv = div().zi(20).poa()
+                    this.editDiv = div().zi(ip.editDivZIndex).poa()
                 ),                  
-                Button("X", this.idParent().delOption.bind(this.idParent(), option)).fs(this.idParent().height / 2).marl(2).bc("#faa"),                
+                this.deleteButton,                
             )
         )
 
         this.enableChanged()
     }
 
-    init(){        
-        this.dragBoxSize = this.idParent().height * 0.7        
+    init(){                
         this.build()
     }
 }
@@ -638,20 +706,95 @@ class EditableList_ extends SmartDomElement{
     }
 
     init(){                        
-        this.width = this.props.width || 400
-        this.height = this.props.height || 20        
+        this.width                          = this.props.width || 400
+        this.height                         = this.props.height || 20        
 
-        this.extrawidth = 85 + this.height * 1.5
-
-        this.containerPadding = 2
-        this.selectedPadding = 2    
+        this.containerPadding               = 2
+        this.selectedPadding                = 2    
+        this.selectedDivBackgroundColor     = "#ddd"
+        this.selectedDivColor               = "#00f"
+        this.selectedDivFontSize            = this.height * 0.9
+        this.optionsDivBorderColor          = "#aaa"
+        this.optionsDivBakcgroundColor      = "#ddd"
+        this.optionsDivMinHeight            = 550
+        this.optionsDivZIndex               = 10
+        this.optionsDivBorderWidth          = this.height / 6
+        this.optionsDivBorderStyle          = "solid"
+        this.containerButtonMargin          = 2
+        this.optionLabelFontSize            = this.selectedDivFontSize * 0.85
+        this.optionLabelBorderStyle         = "solid"
+        this.optionLabelBorderWidth         = 1
+        this.optionLabelBorderColor         = "#aaa"
+        this.optionLabelBorderRadius        = 5
+        this.optionLabelBackgroundColor     = "#dfc"
+        this.optionLabelMarginRight         = 2
+        this.optionLabelPadding             = 2
+        this.optionEnabledOpacity           = 1
+        this.optionDisabledOpacity          = 0.5
+        this.optionBackgroundColor          = "#eee"
+        this.optionSelectedBackgroundColor  = "#7f7"
+        this.dragOptionHighlightColor       = "#ff0"
+        this.dragOptionOverColor            = "#0f0"
+        this.dragBoxColor                   = "#00f"
+        this.dragBoxSize                    = this.height * 0.7
+        this.deleteButtonColor              = "#faa"
+        this.editOptionButtonColor          = "#ddd"
+        this.optionButtonFontSize           = this.height / 2
+        this.optionElementDivFontSize       = this.height * 0.8
+        this.optionButtonLeftMargin         = 2
+        this.optionCheckBoxSize             = this.height * 0.8
+        this.editDivZIndex                  = 20
+        this.widgetFontSize                 = this.height * 0.9
+        this.widgetPadding                  = 2        
+        this.optionEditDivBackgroundColor   = "#f00"
+        this.optionEditDivPadding           = 2
+        this.optionEditDivMargin           = -2        
+        this.optionEditComboFontSize        = this.height * 0.75
+        this.containerRolledBackgroundColor = "#77f"
+        this.containerBackgroundColor       = "#eee"
+        this.optionsDivTop                  = this.height + 2 * ( this.containerPadding + this.selectedPadding )        
         
-        this.ffm().ac("unselectable").dib().a(this.container = div().por().dfc().pad(this.containerPadding).a(
-            this.selectedDiv = div().fwb().c("#00f").ae("click", this.switchRoll.bind(this)).fs(this.height - 4).pad(this.selectedPadding).ww(this.width).hh(this.height).bc("#ddd"),
-            Button(">", this.switchRoll.bind(this)).marl(2),
-            Button("+", this.addOption.bind(this)).marl(2),            
-            this.optionsDiv = div().bdr("solid", this.height / 6, "#aaa").bc("#ddd").zi(10).mih(550).ww(this.width + this.extrawidth).ovfys().poa().t(this.height + 2 * ( this.containerPadding + this.selectedPadding ))
-        ))
+        this.optionLabelWidth               = this.height * 4
+        this.optionsLeftControlWidth        = 35 + this.height * 0.85
+        this.optionsRightControlWidth       = 45 + this.height * 0.8
+        this.optionControlsWidth            = this.optionsLeftControlWidth + this.optionsRightControlWidth
+
+        this.optionsDivLeft                 = this.props.optionChild ? - ( this.optionLabelWidth + this.optionsLeftControlWidth ) : 0
+
+        this.elementDivWidth                = this.width + this.optionLabelWidth
+
+        this.optionEditDivWidth             = this.elementDivWidth - 2 * this.optionEditDivPadding
+        
+        this.optionsDivWidth                = this.elementDivWidth + this.optionControlsWidth
+        
+        this.widgetWidth                    = this.width * 0.96
+
+        this.childEditableListWidth         = this.width * 0.87
+        
+
+        this.selectedDiv = div().ww(this.width).hh(this.height).pad(this.selectedPadding)
+            .ae("click", this.switchRoll.bind(this))
+            .fwb().fs(this.selectedDivFontSize)
+            .bc(this.selectedDivBackgroundColor).c(this.selectedDivColor)
+
+        this.optionsDiv = div().poa().ovfys().zi(this.optionsDivZIndex)            
+            .ww(this.optionsDivWidth).mih(this.optionsDivMinHeight)
+            .t(this.optionsDivTop).l(this.optionsDivLeft)
+            .bdr(this.optionsDivBorderStyle, this.optionsDivBorderWidth, this.optionsDivBorderColor)
+            .bc(this.optionsDivBakcgroundColor)
+        
+        this.container = div().por().dfc().pad(this.containerPadding)
+        
+        this.container.a(
+            this.selectedDiv,
+            Button(">", this.switchRoll.bind(this)).marl(this.containerButtonMargin),
+            Button("+", this.addOption.bind(this)).marl(this.containerButtonMargin),            
+            this.optionsDiv
+        )
+        
+        this.ffm().ac("unselectable").dib()
+
+        this.a(this.container)
 
         this.buildOptions()
 
@@ -675,29 +818,30 @@ class EditableList_ extends SmartDomElement{
         this.storeState()
     }
 
-    handleEvent(sev){
+    handleEvent(sev){        
         if(sev.do == "dragoption"){
+            sev.stopPropagation = true            
             switch(sev.kind){
                 case "dragstart":
                     this.draggedElement = sev.e
                     this.draggedOption = this.draggedElement.props.option
-                    this.draggedElement.bc("#ff0")
+                    this.draggedElement.bc(this.dragOptionHighlightColor)
                     break
                 case "dragover":
                     sev.ev.preventDefault()
-                    sev.e.bc("#0f0")
-                    this.draggedElement.bc("#ff0")
+                    sev.e.bc(this.dragOptionOverColor)
+                    this.draggedElement.bc(this.dragOptionHighlightColor)
                     break
                 case "dragleave":
                     sev.ev.preventDefault()
-                    sev.e.bc("#00f")
-                    this.draggedElement.bc("#ff0")
+                    sev.e.bc(this.dragBoxColor)
+                    this.draggedElement.bc(this.dragOptionHighlightColor)
                     break
-                case "drop":
+                case "drop":                               
                     let dropOption = sev.e.props.option
                     let i = this.state.options.findIndex(opt=>opt.value == this.draggedOption.value)
-                    let j = this.state.options.findIndex(opt=>opt.value == dropOption.value)
-                    this.state.options.itoj(i,j)
+                    let j = this.state.options.findIndex(opt=>opt.value == dropOption.value)                    
+                    this.state.options.itoj(i,j)                    
                     this.buildOptions()
                     this.storeState()
                     break
@@ -707,10 +851,13 @@ class EditableList_ extends SmartDomElement{
 
     buildOptions(){
         if(!this.state.options) this.state.options = []
+
         if(!this.state.selected && this.state.options.length) this.state.selected = this.state.options[0]
+        
         this.optionsDiv.x().a(this.state.options.map(option=>
             OptionElement({option: option})
         ))        
+
         if(this.props.isContainer && (!this.props.showSelected)){
             this.selectedDiv.html(this.props.label ? this.props.label : "")
         }else{
@@ -722,7 +869,7 @@ class EditableList_ extends SmartDomElement{
 
     switchRoll(){        
         this.state.rolled = !this.state.rolled
-        this.container.bc(this.state.rolled ? "#77f" : "#eee")
+        this.container.bc(this.state.rolled ? this.containerRolledBackgroundColor : this.containerBackgroundColor)
         this.optionsDiv.show(this.state.rolled)
         this.storeState()
     }
@@ -744,7 +891,10 @@ class EditableList_ extends SmartDomElement{
             this.storeState()
             return
         }
-        opt = {kind: this.props.isContainer ? "editablelist" : "scalar", value: value, display: display}
+        opt = {
+            kind: this.props.isContainer ? "editablelist" : "scalar",
+            value: value, display: display
+        }
         this.state.options.push(opt)
         this.state.selected = opt
         this.buildOptions()

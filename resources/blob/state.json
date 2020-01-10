@@ -11,6 +11,9 @@
    "smartdomapp/templates/default/conditions.minRating.rating#enable": {
       "checked": false
    },
+   "smartdomapp/templates/default/variant/5#enable": {
+      "checked": true
+   },
    "smartdomapp/templates/default/conditions.minRating.rating": {
       "options": [],
       "rolled": false,
@@ -40,6 +43,9 @@
    },
    "smartdomapp/templates/default/conditions.maxRating.rating#enable": {
       "checked": false
+   },
+   "smartdomapp/templates/default/variant/1#enable": {
+      "checked": true
    },
    "smartdomapp/templates/default/password": {
       "options": [],
@@ -73,6 +79,12 @@
    },
    "smartdomapp/templates/default/startDate#enable": {
       "checked": false
+   },
+   "smartdomapp/templates/default/variant/6#enable": {
+      "checked": true
+   },
+   "smartdomapp/templates/default/variant/4#enable": {
+      "checked": true
    },
    "smartdomapp/templates/default/clockTime": {
       "options": [],
@@ -120,7 +132,7 @@
       "checked": false
    },
    "smartdomapp/templates/default/password#enable": {
-      "checked": false
+      "checked": true
    },
    "smartdomapp/templates/default/variant": {
       "options": [
@@ -168,8 +180,8 @@
       "rolled": false,
       "selected": {
          "kind": "scalar",
-         "value": "7",
-         "display": "Atomic"
+         "value": "6",
+         "display": "Antichess"
       },
       "checked": false
    },
@@ -179,6 +191,9 @@
    "smartdomapp/templates/default/rated": {
       "options": [],
       "rolled": false,
+      "checked": true
+   },
+   "smartdomapp/templates/default/variant/8#enable": {
       "checked": true
    },
    "smartdomapp/templates/default/position#enable": {
@@ -201,14 +216,14 @@
             "display": "Name"
          },
          {
-            "kind": "checkbox",
-            "value": "rated",
-            "display": "Rated"
-         },
-         {
             "kind": "editablelist",
             "value": "variant",
             "display": "Variant"
+         },
+         {
+            "kind": "checkbox",
+            "value": "rated",
+            "display": "Rated"
          },
          {
             "kind": "text",
@@ -273,9 +288,9 @@
       ],
       "rolled": false,
       "selected": {
-         "kind": "datetime",
-         "value": "startDate",
-         "display": "Custom start date"
+         "kind": "text",
+         "value": "name",
+         "display": "Name"
       },
       "checked": false
    },
@@ -294,9 +309,15 @@
    "smartdomapp/templates/default/variant/7": {
       "checked": false
    },
+   "smartdomapp/templates/default/variant/2#enable": {
+      "checked": true
+   },
    "smartdomapp/templates/default/berserkable": {
       "options": [],
       "rolled": false,
+      "checked": true
+   },
+   "smartdomapp/templates/default/variant/9#enable": {
       "checked": true
    },
    "smartdomapp/templates/default/duration": {
@@ -309,6 +330,9 @@
       "checked": false
    },
    "smartdomapp/templates/default/rated#enable": {
+      "checked": true
+   },
+   "smartdomapp/templates/default/variant/7#enable": {
       "checked": true
    },
    "smartdomapp/templates/default/berserkable#enable": {
