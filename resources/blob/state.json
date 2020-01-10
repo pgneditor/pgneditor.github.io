@@ -98,7 +98,7 @@
    "smartdomapp/templates/default/name": {
       "options": [],
       "rolled": false,
-      "text": "Blitz",
+      "text": "Atomic Blitz",
       "checked": false
    },
    "smartdomapp/templates/default/variant#enable": {
@@ -112,7 +112,7 @@
             "display": "Default"
          }
       ],
-      "rolled": false,
+      "rolled": true,
       "selected": {
          "kind": "editablelist",
          "value": "default",
@@ -180,8 +180,8 @@
       "rolled": false,
       "selected": {
          "kind": "scalar",
-         "value": "6",
-         "display": "Antichess"
+         "value": "7",
+         "display": "Atomic"
       },
       "checked": false
    },
@@ -258,7 +258,7 @@
          {
             "kind": "checkbox",
             "value": "berserkable",
-            "display": "Berserkable"
+            "display": "Berserk"
          },
          {
             "kind": "datetime",
@@ -286,7 +286,7 @@
             "display": "Only members of team"
          }
       ],
-      "rolled": false,
+      "rolled": true,
       "selected": {
          "kind": "text",
          "value": "name",
@@ -336,7 +336,7 @@
       "checked": true
    },
    "smartdomapp/templates/default/berserkable#enable": {
-      "checked": false
+      "checked": true
    },
    "smartdomapp/templates/default/name#enable": {
       "checked": true

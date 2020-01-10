@@ -21,6 +21,10 @@ class App extends SmartDomElement{
             Button("Serialize", function(){
                 this.statetext.setValue(JSON.stringify(Object.fromEntries(Object.entries(localStorage).map(entry=>[entry[0], JSON.parse(entry[1])])), null, 3))
             }.bind(this)).float("right"),
+            Button("Copy", function(){
+                this.statetext.focus().select()
+                document.execCommand("copy")
+            }.bind(this)).float("right"),
             Button("Parse", function(){
                 Object.entries(JSON.parse(this.statetext.value())).forEach(entry=>localStorage.setItem(entry[0], JSON.stringify(entry[1])))
                 document.location.reload()

@@ -107,6 +107,8 @@ class SmartDomElement{
         return this
     }
 
+    focus(){this.e.focus(); return this}
+    select(){this.e.select(); return this}
     ae(kind, callback){this.e.addEventListener(kind, callback); return this}
     x(){this.e.innerHTML = ""; return this}
     w(x){return this.addStyle("width", `${x}px`)}
