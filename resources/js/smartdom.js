@@ -21,9 +21,7 @@ class SmartDomElement{
         this.parent = null
 
         if(this.props.ev){
-            for(let kind of this.props.ev.split(" ")){
-                this.ae(kind, this.handleEventAgent.bind(this))
-            }
+            this.ae(this.props.ev, this.handleEventAgent.bind(this))
         }
 
         this.timeouts = {}
@@ -110,7 +108,9 @@ class SmartDomElement{
 
     focus(){this.e.focus(); return this}
     select(){this.e.select(); return this}
-    ae(kind, callback){this.e.addEventListener(kind, callback); return this}
+    ae(kinds, callback){
+        for(let kind of kinds.split(" ")) this.e.addEventListener(kind, callback); return this
+    }
     x(){this.e.innerHTML = ""; return this}
     w(x){return this.addStyle("width", `${x}px`)}
     miw(x){return this.addStyle("minWidth", `${x}px`)}
