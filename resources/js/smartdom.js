@@ -130,6 +130,8 @@ class SmartDomElement{
     marr(x){return this.addStyle("marginRight", `${x}px`)}    
     marb(x){return this.addStyle("marginBottom", `${x}px`)}
     pad(x){return this.addStyle("padding", `${x}px`)}
+    padl(x){return this.addStyle("paddingLeft", `${x}px`)}
+    padr(x){return this.addStyle("paddingRight", `${x}px`)}
     disp(x){return this.addStyle("display", x)}    
     df(x){return this.disp("flex")}    
     dib(x){return this.disp("inline-block")}    
@@ -500,15 +502,27 @@ class OptionElement_ extends SmartDomElement{
             :
                 [{value: "scalar", display: "Scalar"}]            
             this.editDiv.x().a(
-                div().ww(ip.optionEditDivWidth).hh(ip.height)
+                div().dfc().ww(ip.optionEditDivWidth).hh(ip.height)
                     .bc(ip.optionEditDivBackgroundColor)
                     .pad(ip.optionEditDivPadding)
                     .mar(ip.optionEditDivMargin).a(
+                        div()
+                            .ww(ip.optionEditDivWidth / 4).ovf("auto")
+                            .bc("#ccc").fs(ip.widgetFontSize * 0.8)
+                            .padl(ip.textPadding * 2).padr(ip.textPadding * 2)                            
+                            .html(this.props.option.value),
                         Combo({
                             changeCallback: this.kindChanged.bind(this),
                             selected: this.props.option.kind,
                             options: options
-                        }).fs(ip.optionEditComboFontSize)
+                        })
+                            .ww(ip.optionEditDivWidth / 3)
+                            .marl(ip.separationMargin)
+                            .fs(ip.optionEditComboFontSize),
+                        Button("Display", this.changeDisplay.bind(this))
+                            .ww(ip.optionEditDivWidth / 4)
+                            .marl(ip.separationMargin)
+                            .fs(ip.widgetButtonFontSize * 0.9),                        
                     )
             )            
         }else{
@@ -516,15 +530,24 @@ class OptionElement_ extends SmartDomElement{
         }
     }
 
+    propertyChanged(key, value){
+        this.props.option[key] = value
+        this.editOn = false
+        this.build()
+        this.idParent().storeState()
+    }
+
     kindChanged(kind){        
         if(kind == "clone"){
             this.idParent().cloneToOption(this.props.option.value)
         }else{            
-            this.props.option.kind = kind        
-            this.editOn = false
-            this.build()
-            this.idParent().storeState()
+            this.propertyChanged("kind", kind)
         }
+    }
+
+    changeDisplay(){
+        let display = window.prompt("Display :", this.props.option.display)
+        this.propertyChanged("display", display)
     }
 
     editKind(){
@@ -764,6 +787,8 @@ class EditableList_ extends SmartDomElement{
         this.width                          = this.props.width || 400
         this.height                         = this.props.height || 20        
 
+        this.textPadding                    = 2
+        this.separationMargin               = 2
         this.containerPadding               = 2
         this.selectedPadding                = 2    
         this.selectedDivBackgroundColor     = "#ddd"
@@ -811,7 +836,7 @@ class EditableList_ extends SmartDomElement{
         this.containerBackgroundColor       = "#eee"
         this.optionsDivTop                  = this.height + 2 * ( this.containerPadding + this.selectedPadding )        
         
-        this.optionLabelWidth               = this.height * 4
+        this.optionLabelWidth               = this.height * 9
         this.optionsLeftControlWidth        = 35 + this.height * 0.85
         this.optionsRightControlWidth       = 45 + this.height * 0.8
         this.optionControlsWidth            = this.optionsLeftControlWidth + this.optionsRightControlWidth
