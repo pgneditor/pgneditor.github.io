@@ -784,8 +784,8 @@ class EditableList_ extends SmartDomElement{
     }
 
     init(){                        
-        this.width                          = this.props.width || 400
-        this.height                         = this.props.height || 20        
+        this.width                          = this.props.width || ( this.props.isContainer ? 500 : 300 )
+        this.height                         = this.props.height || 20           
 
         this.textPadding                    = 2
         this.separationMargin               = 2
@@ -795,10 +795,8 @@ class EditableList_ extends SmartDomElement{
         this.selectedDivColor               = "#00f"
         this.selectedDivFontSize            = this.height * 0.9
         this.optionsDivBorderColor          = "#aaa"
-        this.optionsDivBakcgroundColor      = "#ddd"
-        this.optionsDivMinHeight            = 550
-        this.optionsDivMaxHeight            = 550
-        this.optionsDivZIndex               = 10
+        this.optionsDivBakcgroundColor      = "#ddd"        
+        this.optionsDivZIndex               = 10        
         this.optionsDivBorderWidth          = this.height / 6
         this.optionsDivBorderStyle          = "solid"
         this.containerButtonMargin          = 2
@@ -838,7 +836,7 @@ class EditableList_ extends SmartDomElement{
         
         this.optionLabelWidth               = this.height * 9
         this.optionsLeftControlWidth        = 35 + this.height * 0.85
-        this.optionsRightControlWidth       = 45 + this.height * 0.8
+        this.optionsRightControlWidth       = 35 + this.height * 0.8
         this.optionControlsWidth            = this.optionsLeftControlWidth + this.optionsRightControlWidth
 
         this.optionsDivLeft                 = this.props.optionChild ? - ( this.optionLabelWidth + this.optionsLeftControlWidth ) : 0
@@ -851,16 +849,15 @@ class EditableList_ extends SmartDomElement{
         
         this.widgetWidth                    = this.width * 0.96
 
-        this.childEditableListWidth         = this.width * 0.87
-        
+        this.childEditableListWidth         = this.width * 0.8        
 
         this.selectedDiv = div().ww(this.width).hh(this.height).pad(this.selectedPadding)
             .ae("click", this.switchRoll.bind(this))
             .fwb().fs(this.selectedDivFontSize)
             .bc(this.selectedDivBackgroundColor).c(this.selectedDivColor)
 
-        this.optionsDiv = div().poa().ovfys().zi(this.optionsDivZIndex)            
-            .ww(this.optionsDivWidth).mih(this.optionsDivMinHeight).mah(this.optionsDivMaxHeight)
+        this.optionsDiv = div().poa().zi(this.optionsDivZIndex)            
+            .ww(this.optionsDivWidth)
             .t(this.optionsDivTop).l(this.optionsDivLeft)
             .bdr(this.optionsDivBorderStyle, this.optionsDivBorderWidth, this.optionsDivBorderColor)
             .bc(this.optionsDivBakcgroundColor)
