@@ -1,4 +1,12 @@
 class App extends SmartDomElement{
+    stream(){
+        this.njr = new NdjsonReader("https://lichess.org/games/export/lishadowapps?max=10", game=>{
+            console.log(game)
+        })
+        
+        this.njr.stream()
+    }
+
     constructor(props){
         super("div", props)
 
@@ -12,6 +20,7 @@ class App extends SmartDomElement{
             div().a(
                 this.statetext = TextAreaInput().w(800).h(400)
             ),
+            Button("Stream", this.stream.bind(this)),
             Button("Reset", function(){
                 localStorage.clear()
                 document.location.reload()

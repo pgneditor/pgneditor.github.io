@@ -41,3 +41,55 @@ function getLocal(key, def){
     if(stored) return JSON.parse(stored)
     return def
 }
+
+class NdjsonReader{
+    constructor(url, processLineFunc){
+        this.url = url
+        this.processLineFunc = processLineFunc
+    }
+
+    read(){
+        this.reader.read().then(
+            (chunk)=>{
+                if(chunk.done){
+                    return
+                }
+                let content = this.pendingChunk + new TextDecoder("utf-8").decode(chunk.value)
+                let closed = content.match(/\n$/)
+                let hasline = content.match(/\n/)
+                let lines = content.split("\n")                
+                if(hasline){
+                    if(!closed){
+                        this.pendingChunk = lines.pop()
+                    }
+                    for(let line of lines){
+                        if(line != "") this.processLineFunc(JSON.parse(line))
+                    }
+                    this.read()
+                }else{
+                    this.pendingChunk += content
+                }
+            },
+            err=>{
+                console.log(err)
+            }
+        )
+    }
+
+    stream(){        
+        fetch(this.url, {
+            headers: {
+                "Accept": "application/x-ndjson"
+            }            
+        }).then(
+            response=>{        
+                this.pendingChunk = ""
+                this.reader = response.body.getReader()
+                this.read()        
+            },
+            err=>{
+                console.log(err)
+            }
+        )
+    }
+}
