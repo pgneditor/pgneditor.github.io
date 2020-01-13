@@ -430,7 +430,13 @@ class CheckBoxInput_ extends input_{
     checkedChanged(){                
         this.state.checked = this.e.checked
         this.storeState()
-        if(this.props.changeCallback) this.props.changeCallback(this.state.checked)
+        if(this.props.changeCallback) this.props.changeCallback(this.state.checked, this.id)
+    }
+
+    setChecked(checked){
+        this.state.checked = checked
+        this.e.checked = checked
+        this.storeState()
     }
 
     setFromState(){
@@ -489,6 +495,7 @@ class OptionElement_ extends SmartDomElement{
                     {value: "editablelist", display: "Editable List"},
                     {value: "editablelistcontainer", display: "Editable List Container"},
                     {value: "multipleselect", display: "Multiple Select"},
+                    {value: "radiogroup", display: "Radio Group"},
                     {value: "slider", display: "Slider"},
                     {value: "text", display: "Text"},
                     {value: "textarea", display: "Text Area"},
@@ -609,6 +616,16 @@ class OptionElement_ extends SmartDomElement{
                         width: ip.widgetWidth
                     })
                 )
+            case "radiogroup":
+                    return this.labeledOptionElement(
+                        option,
+                        MultipleSelect({
+                            radio: true,
+                            idParent: ip,
+                            id: option.value,
+                            width: ip.widgetWidth
+                        })
+                    )
             case "slider":                            
                 return this.labeledOptionElement(
                     option,
@@ -802,8 +819,16 @@ class MultipleSelect_ extends SmartDomElement{
         this.state.selected = this.state.options.filter(option=>getLocal(this.path() + "/" + option.value, {}).checked)        
     }
 
-    selectedChanged(){
-        this.calcSelected()
+    selectedChanged(checked, id){
+        if(this.props.radio){
+            for(let value in this.checkBoxInputs){
+                this.checkBoxInputs[value].setChecked(false)
+            }
+            this.checkBoxInputs[id].setChecked(true)
+            this.build()
+        }else{
+            this.calcSelected()
+        }
         this.storeState()
     }
 
@@ -812,11 +837,13 @@ class MultipleSelect_ extends SmartDomElement{
 
         let addButton = Button("+", this.addOption.bind(this))
 
+        this.checkBoxInputs = {}
+
         this.a(this.state.options.map(option=>
             div().bc("#bbb").mar(2).dib().a(
                 div().dfc().a(
                     div().mar(2).pad(2).bc("#ddf").html(option.display),
-                    CheckBoxInput({idParent: this, id: option.value, changeCallback: this.selectedChanged.bind(this)}).ww(16).hh(16),
+                    this.checkBoxInputs[option.value] = CheckBoxInput({idParent: this, id: option.value, changeCallback: this.selectedChanged.bind(this)}).ww(16).hh(16),
                     Button("X", this.delOption.bind(this, option)).bc("#fdd").fs(8).mar(2)
                 )
             )            
