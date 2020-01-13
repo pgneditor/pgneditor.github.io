@@ -64,8 +64,8 @@ class SmartDomElement{
     idParent(){
         if(this.props.idParent) return this.props.idParent
         let current = this
-        do{
-            current = current.parent                        
+        do{            
+            current = current.parent                                    
             if(current) if(current.id) return current
         }while(current)
         return null
@@ -422,8 +422,8 @@ class CheckBoxInput_ extends input_{
         super({...{type: "checkbox"}, ...props})
     }
 
-    init(){                
-        this.ae("change", this.checkedChanged.bind(this))        
+    init(){                        
+        this.ae("change", this.checkedChanged.bind(this))                
         this.setFromState()
     }
 
@@ -488,6 +488,7 @@ class OptionElement_ extends SmartDomElement{
                 [
                     {value: "editablelist", display: "Editable List"},
                     {value: "editablelistcontainer", display: "Editable List Container"},
+                    {value: "multipleselect", display: "Multiple Select"},
                     {value: "slider", display: "Slider"},
                     {value: "text", display: "Text"},
                     {value: "textarea", display: "Text Area"},
@@ -597,6 +598,15 @@ class OptionElement_ extends SmartDomElement{
                         id: option.value,
                         width: ip.childEditableListWidth,
                         height: ip.height
+                    })
+                )
+            case "multipleselect":
+                return this.labeledOptionElement(
+                    option,
+                    MultipleSelect({
+                        idParent: ip,
+                        id: option.value,
+                        width: ip.widgetWidth
                     })
                 )
             case "slider":                            
@@ -749,6 +759,75 @@ class OptionElement_ extends SmartDomElement{
     }
 }
 function OptionElement(props){return new OptionElement_(props)}
+
+class MultipleSelect_ extends SmartDomElement{
+    constructor(props){
+        super("div", props)
+    }
+
+    init(){
+        this.width = this.props.width || 400        
+
+        this.build()
+
+        this.state.options = this.state.options ? this.state.options : []
+
+        this.storeState()
+    }
+
+    findOptionByValue(value){
+        return this.state.options.find(option=>option.value == value)
+    }
+
+    addOption(){
+        let value = window.prompt("Option Value :")
+        let display = window.prompt("Option Display :")
+        let opt = this.findOptionByValue(value)
+        if(opt){
+            opt.display = display
+        }else{
+            this.state.options.push({value: value, display: display})
+        }
+        this.build()
+        this.storeState()
+    }
+
+    delOption(option){
+        this.state.options = this.state.options.filter(opt=>opt.value != option.value)
+        this.build()
+        this.storeState()
+    }
+
+    calcSelected(){
+        this.state.selected = this.state.options.filter(option=>getLocal(this.path() + "/" + option.value, {}).checked)        
+    }
+
+    selectedChanged(){
+        this.calcSelected()
+        this.storeState()
+    }
+
+    build(){
+        this.x().ww(this.width).hh(this.height).bc("#eee")
+
+        let addButton = Button("+", this.addOption.bind(this))
+
+        this.a(this.state.options.map(option=>
+            div().bc("#bbb").mar(2).dib().a(
+                div().dfc().a(
+                    div().mar(2).pad(2).bc("#ddf").html(option.display),
+                    CheckBoxInput({idParent: this, id: option.value, changeCallback: this.selectedChanged.bind(this)}).ww(16).hh(16),
+                    Button("X", this.delOption.bind(this, option)).bc("#fdd").fs(8).mar(2)
+                )
+            )            
+        ))
+
+        this.a(addButton.mar(5).bc("#afa"))
+
+        this.calcSelected()
+    }
+}
+function MultipleSelect(props){return new MultipleSelect_(props)}
 
 class EditableList_ extends SmartDomElement{
     constructor(props){
@@ -958,9 +1037,9 @@ class EditableList_ extends SmartDomElement{
     }
 
     addOption(){
-        let value = window.prompt("Option vaue :")
+        let value = window.prompt("Option Value :")
         if(!value) value = ""        
-        let display = window.prompt("Option display :")
+        let display = window.prompt("Option Display :")
         if(!display) display = value        
         let opt = this.findOptionByValue(value)
         if(opt){
